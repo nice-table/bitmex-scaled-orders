@@ -4,7 +4,7 @@
 
 Video demo: https://streamable.com/04rxn
 
-Tool for setting scaled orders / bulk orders on Bitmex.
+Tool for creating scaled orders / bulk orders on Bitmex.
 
 Currently hardcoded to XBTUSD.
 
