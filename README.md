@@ -1,10 +1,10 @@
 # Bitmex scaled orders
 
+_A tool for creating scaled orders / bulk orders on Bitmex_
+
 ![Preview](https://i.imgur.com/FjPDll9.png)
 
 Video demo: https://streamable.com/04rxn
-
-Tool for creating scaled orders / bulk orders on Bitmex.
 
 Currently hardcoded to XBTUSD.
 
@@ -26,7 +26,7 @@ Edit the properties in `src/config/index.js`. Mainly:
 
 * `apiKeyID`
 * `apiKeySecret`
-* `testnet` - Whether you want to use Bitmex's testnet or production. Note that testnet and production use separate API keys.
+* `testnet` - Whether you want to use Bitmex's testnet or production. Note that testnet and production have separate API keys.
 
 Get these running at the same time
 
