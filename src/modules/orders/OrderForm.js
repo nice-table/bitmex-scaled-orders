@@ -20,7 +20,7 @@ class OrderForm extends React.PureComponent {
 
   state = { open: false };
 
-  show = () => this.setState({ open: true });
+  showConfirmModal = () => this.setState({ open: true });
   handleConfirm = () => this.setState({ open: false });
   handleCancel = () => this.setState({ open: false });
 
@@ -199,7 +199,7 @@ class OrderForm extends React.PureComponent {
                       e.preventDefault();
 
                       setFieldValue("orderType", "Buy");
-                      this.show();
+                      this.showConfirmModal();
                     }}
                   >
                     Buy / long
@@ -213,7 +213,7 @@ class OrderForm extends React.PureComponent {
                       e.preventDefault();
 
                       setFieldValue("orderType", "Sell");
-                      this.show();
+                      this.showConfirmModal();
                     }}
                   >
                     Sell / short

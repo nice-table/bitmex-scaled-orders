@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "bitmex-realtime-api": "^0.2.6",
-    "body": "^5.1.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "formik": "^1.0.0-alpha.6",
@@ -26,7 +25,7 @@
     "react-table": "^6.8.0",
     "react-toastify": "^4.0.0-rc.5",
     "sanitize.css": "^5.0.0",
-    "semantic-ui-react": "^0.79.1",
+    "semantic-ui-react": "^0.80.0",
     "sockette": "^2.0.0",
     "styled-components": "^3.2.6",
     "styled-system": "^2.2.5",
@@ -42,7 +41,6 @@
     "postinstall": "node postinstall.js"
   },
   "devDependencies": {
-    "cross-env": "^5.1.4",
     "nodemon": "^1.17.3",
     "prettier": "^1.12.1",
     "pretty-quick": "^1.4.1"
