@@ -6,6 +6,8 @@ const wss = new WebSocket.Server({ port: config.websocketPort });
 console.log("Started webocket server on port", config.websocketPort);
 
 wss.on("connection", function connection(ws) {
+  let isAlive = true;
+
   ws.send(JSON.stringify({ source: "local", message: "Connected to proxy" }));
 
   const client = new BitMEXClient({
@@ -13,6 +15,10 @@ wss.on("connection", function connection(ws) {
     apiKeyID: config.apiKeyID,
     apiKeySecret: config.apiKeySecret,
     maxTableLen: config.maxTableLen
+  });
+
+  ws.on("close", () => {
+    isAlive = false;
   });
 
   client.on("error", function(error) {
@@ -28,6 +34,10 @@ wss.on("connection", function connection(ws) {
   config.symbols.forEach(function(symbol) {
     config.streams.forEach(function(streamName) {
       client.addStream(symbol, streamName, function(data, symbol, tableName) {
+        if (!isAlive) {
+          return;
+        }
+
         ws.send(
           JSON.stringify({
             source: "bitmex",
