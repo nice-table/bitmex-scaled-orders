@@ -8,7 +8,7 @@ const canCancel = order =>
 
 export const OrdersTable = ({ cancelOrder, orders }) => (
   <ReactTable
-    data={orders.filter(x => canCancel(x))}
+    data={orders.filter(canCancel)}
     minRows={0}
     showPagination={false}
     getTrProps={(state, rowInfo, column) => {

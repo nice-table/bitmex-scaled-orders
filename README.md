@@ -33,8 +33,12 @@ Get these running at the same time
 * `npm run proxy`
 * `npm start`
 
-## Roadmap / wishlist
+## TODO
 
-* Support more instruments
+* Support more BTC instruments (futures)
+* Warn user if one or more orders may be executed as a market order
+
+## Maybe
+
 * Other order types / strategies (https://www.sierrachart.com/index.php?page=doc/OrderTypes.html)
 * Moon
