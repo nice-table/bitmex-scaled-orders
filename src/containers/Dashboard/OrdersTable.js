@@ -6,6 +6,11 @@ import { Button, Icon } from "semantic-ui-react";
 const canCancel = order =>
   order.ordStatus !== "Canceled" && order.ordStatus !== "Filled";
 
+const execInstLabels = {
+  ParticipateDoNotInitiate: "Post-Only",
+  ReduceOnly: "Reduce-Only"
+};
+
 export const OrdersTable = ({ cancelOrder, orders }) => (
   <ReactTable
     data={orders.filter(canCancel)}
@@ -43,11 +48,19 @@ export const OrdersTable = ({ cancelOrder, orders }) => (
       },
       {
         Header: "Type",
-        accessor: "ordType"
+        accessor: "ordType",
+        maxWidth: 100
       },
       {
         Header: "Status",
-        accessor: "ordStatus"
+        accessor: "ordStatus",
+        maxWidth: 100
+      },
+      {
+        Header: "Exec.",
+        accessor: "execInst",
+        Cell: ({ value }) =>
+          execInstLabels[value] ? execInstLabels[value] : value
       },
       {
         sortable: false,

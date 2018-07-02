@@ -1,6 +1,5 @@
 import React, { PureComponent } from "react";
 import { Flex, Box } from "grid-styled";
-import styled from "styled-components";
 import { Header } from "semantic-ui-react";
 import Composer from "react-composer";
 import { OrderForm, CreateBulkBtcOrders, CancelOrder } from "modules/orders";
@@ -10,16 +9,6 @@ import { PositionsTable } from "./PositionsTable";
 import sockette from "sockette";
 import produce from "immer";
 import { websocketPort } from "config";
-
-const Container = styled.div`
-  max-width: 1300px;
-  margin: 30px auto;
-  padding: 10px;
-
-  @media (min-width: 1300px) {
-    padding: 0;
-  }
-`;
 
 class Dashboard extends PureComponent {
   state = {
@@ -84,7 +73,7 @@ class Dashboard extends PureComponent {
         ]}
       >
         {([cancelOrder, createBulkOrders]) => (
-          <Container>
+          <React.Fragment>
             <Header as="h1">Bitmex scaled orders</Header>
             <Flex flexWrap="wrap">
               <Box width={[1, null, 1 / 2]} mb={4} pr={[0, null, 4]}>
@@ -107,7 +96,7 @@ class Dashboard extends PureComponent {
                   {this.getOrders().length > 0 ? (
                     <OrdersTable
                       orders={this.getOrders().filter(
-                        x => x.ordType === "Limit"
+                        x => x.ordType === "Limit" && x.ordStatus !== "Rejected"
                       )}
                       cancelOrder={cancelOrder}
                     />
@@ -117,7 +106,7 @@ class Dashboard extends PureComponent {
                 </div>
               </Box>
             </Flex>
-          </Container>
+          </React.Fragment>
         )}
       </Composer>
     );

@@ -17,7 +17,8 @@ const getAmountDistribution = (distribution, orderCount) => {
 
     for (let i = 0; i < orderCount; i += 1) {
       pricePointPercentages[i] =
-        minPercentage + i * (maxPercentage - minPercentage) / (orderCount + 1);
+        minPercentage +
+        (i * (maxPercentage - minPercentage)) / (orderCount + 1);
     }
 
     if (distribution === "decreasing") {
@@ -41,7 +42,7 @@ const distributeAmount = (total, weights) => {
   const distributionSum = _.sum(weights);
 
   weights.forEach(weight => {
-    const val = weight * total / distributionSum + leftover;
+    const val = (weight * total) / distributionSum + leftover;
 
     const weightedValue = Math.trunc(val);
     leftover = val % 1;

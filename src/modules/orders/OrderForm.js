@@ -4,10 +4,10 @@ import numeral from "numeral";
 import _ from "lodash";
 import ReactTable from "components/ReactTable";
 import { Formik, Form, Field } from "formik";
-import { Persist } from "formik-persist";
 import Yup from "yup";
 import { Button, Header, Divider, Confirm } from "semantic-ui-react";
 import { RadioButton, RadioButtonGroup } from "form/Radio";
+import { Toggle } from "form/Toggle";
 import { TextInput } from "form/TextInput";
 import { Flex, Box } from "grid-styled";
 import { generateOrders } from "./scaledOrderGenerator";
@@ -75,37 +75,70 @@ class OrderForm extends React.PureComponent {
           orderCount: 5,
           priceLower: 8200,
           priceUpper: 8300,
-          distribution: "flat"
+          distribution: "flat",
+          postOnly: false,
+          reduceOnly: false,
+          hidden: false
         }}
         isInitialValid
         onSubmit={vals => {
           const orders = generateOrders(vals);
+          const execInst = [];
+
+          /*
+            Also known as a Post-Only order. If this order would have executed on placement, it will cancel instead.
+          */
+          if (vals.postOnly === true) {
+            execInst.push("ParticipateDoNotInitiate");
+          }
+
+          /*
+            A 'ReduceOnly' order can only reduce your position, not increase it.
+            If you have a 'ReduceOnly' limit order that rests in the order book while the position is reduced by other orders, then its order quantity will be amended down or canceled.
+            If there are multiple 'ReduceOnly' orders the least agresssive will be amended first.
+          */
+          if (vals.reduceOnly === true) {
+            execInst.push("ReduceOnly");
+          }
+
           const apiOrders = orders.map(x => ({
             symbol: "XBTUSD",
+            ordType: "Limit",
             side: vals.orderType,
             orderQty: x.amount,
             price: x.price,
-            ordType: "Limit"
+            displayQty: vals.hidden === true ? 0 : undefined,
+            execInst: execInst.length > 0 ? execInst.join(",") : undefined
           }));
 
           this.props.createOrders(apiOrders);
         }}
         validationSchema={props =>
           Yup.object().shape({
+            postOnly: Yup.boolean().label("Post-Only"),
+            reduceOnly: Yup.boolean().label("Reduce-Only"),
+            hidden: Yup.boolean().label("Hidden"),
+            distribution: Yup.string()
+              .label("Distribution")
+              .required(),
             amount: Yup.number()
+              .label("Quantity")
               .integer()
               .required()
               .min(2),
             orderCount: Yup.number()
+              .label("Number of orders")
               .integer()
               .min(2)
               .max(200)
               .required(),
             priceLower: Yup.number()
+              .label("Price lower")
               .integer()
               .required()
               .positive(),
             priceUpper: Yup.number()
+              .label("Price upper")
               .integer()
               .required()
               .positive()
@@ -116,9 +149,6 @@ class OrderForm extends React.PureComponent {
           values,
           errors,
           touched,
-          handleSubmit,
-          handleChange,
-          isSubmitting,
           setFieldValue,
           submitForm,
           isValid
@@ -187,7 +217,38 @@ class OrderForm extends React.PureComponent {
                     ))}
                   </RadioButtonGroup>
                 </Box>
+
+                <Box width={[1, 1 / 2]}>
+                  <Header as="h4">Order execution</Header>
+                  <Flex flexWrap="wrap">
+                    <Box w={1} mb={2}>
+                      <Field
+                        name="postOnly"
+                        component={Toggle}
+                        label="Post-Only"
+                        disabled={values.hidden === true}
+                      />
+                    </Box>
+                    <Box w={1} mb={2}>
+                      <Field
+                        name="reduceOnly"
+                        component={Toggle}
+                        label="Reduce-Only"
+                      />
+                    </Box>
+                    <Box w={1}>
+                      <Field
+                        name="hidden"
+                        component={Toggle}
+                        label="Hidden"
+                        disabled={values.postOnly === true}
+                      />
+                    </Box>
+                  </Flex>
+                </Box>
               </Flex>
+
+              <Divider />
 
               <Flex>
                 <div style={{ marginLeft: "auto" }}>
@@ -206,6 +267,7 @@ class OrderForm extends React.PureComponent {
                   </Button>
 
                   <Button
+                    style={{ marginRight: 0, marginLeft: "10px" }}
                     disabled={!isValid || submitting}
                     type="submit"
                     color="red"
@@ -220,7 +282,6 @@ class OrderForm extends React.PureComponent {
                   </Button>
                 </div>
               </Flex>
-              <Persist name="orderForm" />
             </Form>
 
             {isValid && this.renderPreview(values)}
