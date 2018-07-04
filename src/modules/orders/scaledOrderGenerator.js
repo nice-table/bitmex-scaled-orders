@@ -50,7 +50,18 @@ const distributeAmount = (total, weights) => {
     distributedTotal.push(weightedValue);
   });
 
-  distributedTotal[-1] = _.round(distributedTotal[-1] + leftover);
+  // Add any leftover to the largest weight
+  if (_.isNumber(leftover)) {
+    const indexOfLargestWeight = _.indexOf(
+      distributedTotal,
+      _.max(distributedTotal)
+    );
+
+    distributedTotal[indexOfLargestWeight] = _.round(
+      distributedTotal[indexOfLargestWeight] + leftover,
+      0
+    );
+  }
 
   return distributedTotal;
 };
@@ -62,6 +73,14 @@ const generateOrders = ({
   priceUpper,
   distribution
 }) => {
+  if (amount < 2) {
+    return new Error("Amount must be greater than or equal to 2");
+  }
+
+  if (orderCount < 2 || orderCount > 200) {
+    return new Error("Number of orders must be between 2 and 200");
+  }
+
   const weights = getAmountDistribution(distribution, orderCount);
   const orderSizes = distributeAmount(amount, weights);
 
