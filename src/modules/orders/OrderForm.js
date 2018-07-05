@@ -12,6 +12,7 @@ import { TextInput } from "form/TextInput";
 import { Flex, Box } from "grid-styled";
 import { generateOrders } from "./scaledOrderGenerator";
 import { ORDER_DISTRIBUTIONS } from "./constants";
+import { DataContext } from "modules/data";
 
 class OrderForm extends React.PureComponent {
   static propTypes = {
@@ -164,6 +165,17 @@ class OrderForm extends React.PureComponent {
                     min={2}
                     component={TextInput}
                   />
+                  <b>
+                    Order value:{" "}
+                    <DataContext.Consumer>
+                      {data =>
+                        data.orderValueXBT(values.amount) &&
+                        `${numeral(data.orderValueXBT(values.amount)).format(
+                          "0,0.0000"
+                        )} XBT`
+                      }
+                    </DataContext.Consumer>{" "}
+                  </b>
                 </Box>
                 <Box width={[1 / 2]}>
                   <Field
