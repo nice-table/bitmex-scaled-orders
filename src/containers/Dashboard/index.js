@@ -2,56 +2,15 @@ import React, { PureComponent } from "react";
 import { Flex, Box } from "grid-styled";
 import { Header } from "semantic-ui-react";
 import Composer from "react-composer";
-import { OrderForm, CreateBulkBtcOrders, CancelOrder } from "modules/orders";
 import { toast } from "react-toastify";
+
+import { DataContext } from "modules/data";
+import { OrderForm, CreateBulkBtcOrders, CancelOrder } from "modules/orders";
+
 import { OrdersTable } from "./OrdersTable";
 import { PositionsTable } from "./PositionsTable";
-import sockette from "sockette";
-import produce from "immer";
-import { websocketPort } from "config";
 
 class Dashboard extends PureComponent {
-  state = {
-    bitmex: {}
-  };
-
-  componentDidMount() {
-    this.ws = new sockette(`ws://localhost:${websocketPort}`, {
-      onmessage: e => {
-        const message = JSON.parse(e.data);
-
-        if (message.source === "bitmex" && message.data) {
-          this.setState(
-            produce(draft => {
-              draft.bitmex[`${message.symbol}:${message.tableName}`] =
-                message.data;
-            })
-          );
-        }
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    this.ws.close();
-  }
-
-  getOrders() {
-    if (this.state.bitmex["XBTUSD:order"]) {
-      return this.state.bitmex["XBTUSD:order"];
-    }
-
-    return [];
-  }
-
-  getPositions() {
-    if (this.state.bitmex["XBTUSD:position"]) {
-      return this.state.bitmex["XBTUSD:position"];
-    }
-
-    return [];
-  }
-
   render() {
     return (
       <Composer
@@ -88,21 +47,31 @@ class Dashboard extends PureComponent {
               <Box width={[1, null, 1 / 2]}>
                 <div style={{ marginBottom: "15px" }}>
                   <Header as="h3">XBTUSD positions</Header>{" "}
-                  <PositionsTable positions={this.getPositions()} />
+                  <DataContext.Consumer>
+                    {data => <PositionsTable positions={data.getPositions()} />}
+                  </DataContext.Consumer>
                 </div>
 
                 <div>
                   <Header as="h3">Active orders</Header>
-                  {this.getOrders().length > 0 ? (
-                    <OrdersTable
-                      orders={this.getOrders().filter(
-                        x => x.ordType === "Limit" && x.ordStatus !== "Rejected"
-                      )}
-                      cancelOrder={cancelOrder}
-                    />
-                  ) : (
-                    <p>No open orders.</p>
-                  )}
+                  <DataContext.Consumer>
+                    {data =>
+                      data.getOrders().length > 0 ? (
+                        <OrdersTable
+                          orders={data
+                            .getOrders()
+                            .filter(
+                              x =>
+                                x.ordType === "Limit" &&
+                                x.ordStatus !== "Rejected"
+                            )}
+                          cancelOrder={cancelOrder}
+                        />
+                      ) : (
+                        <p>No open orders.</p>
+                      )
+                    }
+                  </DataContext.Consumer>
                 </div>
               </Box>
             </Flex>
