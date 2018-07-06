@@ -13,10 +13,13 @@ import { Flex, Box } from "grid-styled";
 import { generateOrders } from "./scaledOrderGenerator";
 import { ORDER_DISTRIBUTIONS } from "./constants";
 import { DataContext } from "modules/data";
+import Persist from "form/formik-persist";
 
 class OrderForm extends React.PureComponent {
   static propTypes = {
-    submitting: PropTypes.bool.isRequired
+    submitting: PropTypes.bool.isRequired,
+    createOrders: PropTypes.func.isRequired,
+    currentInstrument: PropTypes.string.isRequired
   };
 
   state = { open: false };
@@ -103,7 +106,7 @@ class OrderForm extends React.PureComponent {
           }
 
           const apiOrders = orders.map(x => ({
-            symbol: "XBTUSD",
+            symbol: this.props.currentInstrument,
             ordType: "Limit",
             side: vals.orderType,
             orderQty: x.amount,
@@ -112,7 +115,7 @@ class OrderForm extends React.PureComponent {
             execInst: execInst.length > 0 ? execInst.join(",") : undefined
           }));
 
-          this.props.createOrders(apiOrders);
+          this.props.createOrders({ body: { orders: apiOrders } });
         }}
         validationSchema={props =>
           Yup.object().shape({
@@ -165,17 +168,20 @@ class OrderForm extends React.PureComponent {
                     min={2}
                     component={TextInput}
                   />
-                  <b>
-                    Order value:{" "}
-                    <DataContext.Consumer>
-                      {data =>
-                        data.orderValueXBT(values.amount) &&
-                        `${numeral(data.orderValueXBT(values.amount)).format(
-                          "0,0.0000"
-                        )} XBT`
-                      }
-                    </DataContext.Consumer>{" "}
-                  </b>
+
+                  <div style={{ marginTop: "10px" }}>
+                    <b>
+                      Order value:{" "}
+                      <DataContext.Consumer>
+                        {data =>
+                          data.orderValueXBT(values.amount) &&
+                          `${numeral(data.orderValueXBT(values.amount)).format(
+                            "0,0.0000"
+                          )} XBT`
+                        }
+                      </DataContext.Consumer>{" "}
+                    </b>
+                  </div>
                 </Box>
                 <Box width={[1 / 2]}>
                   <Field
@@ -294,6 +300,8 @@ class OrderForm extends React.PureComponent {
                   </Button>
                 </div>
               </Flex>
+
+              <Persist name="order-form" />
             </Form>
 
             {isValid && this.renderPreview(values)}
