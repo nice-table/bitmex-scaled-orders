@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "private": true,
   "dependencies": {
-    "bitmex-realtime-api": "^0.3.0",
+    "@nice-table/bitmex-realtime-api": "^0.3.1",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "formik": "^1.0.0-beta.4",

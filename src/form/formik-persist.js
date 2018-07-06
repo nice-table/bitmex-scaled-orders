@@ -1,5 +1,5 @@
 // Modified version of https://github.com/jaredpalmer/formik-persist
-// Version 1.0.0 didn't support work with newer version of Formik due to undefined formik context
+// Version 1.0.0 didn't work with newer version of Formik due to undefined formik context
 import React from "react";
 import _ from "lodash";
 import { FormikConsumer } from "formik";

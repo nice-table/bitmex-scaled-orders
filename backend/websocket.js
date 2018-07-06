@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const BitMEXClient = require("bitmex-realtime-api");
+const BitMEXClient = require("@nice-table/bitmex-realtime-api");
 const config = require("../src/config");
 
 const wss = new WebSocket.Server({ port: config.websocketPort });
