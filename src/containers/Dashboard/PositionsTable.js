@@ -14,8 +14,28 @@ export const PositionsTable = ({ positions }) => (
   <ReactTable
     data={positions}
     minRows={0}
+    noDataText="No open positions"
     showPagination={false}
+    getTrProps={(state, rowInfo, column) => {
+      return {
+        style: {
+          borderLeft:
+            rowInfo.row.currentQty > 0
+              ? "5px solid #52b370"
+              : "5px solid #e8704f"
+        }
+      };
+    }}
     columns={[
+      {
+        Header: "Buy / Sell",
+        accessor: "side",
+        show: false
+      },
+      {
+        Header: "Symbol",
+        accessor: "symbol"
+      },
       {
         Header: "Position size",
         accessor: "currentQty",

@@ -2,9 +2,13 @@ import React from "react";
 import _ from "lodash";
 import sockette from "sockette";
 import produce from "immer";
-import { websocketPort } from "config";
+import { websocketPort, symbols } from "config";
 
-const DataContext = React.createContext({ instrument: "XBTUSD", data: {} });
+const DataContext = React.createContext({
+  currentInstrument: _.first(symbols),
+  symbols: symbols,
+  data: {}
+});
 
 class DataProvider extends React.Component {
   constructor(props) {
@@ -12,11 +16,17 @@ class DataProvider extends React.Component {
 
     this.state = {
       bitmex: {
-        instrument: "XBTUSD",
+        currentInstrument: _.first(symbols),
+        symbols: symbols,
         data: {},
         getOrders: this.getOrders,
+        getAllOrders: this.getAllOrders,
         getPositions: this.getPositions,
-        orderValueXBT: this.orderValueXBT
+        getAllPositions: this.getAllPositions,
+        orderValueXBT: this.orderValueXBT,
+        getSymbols: this.getSymbols,
+        changeCurrentInstrument: this.changeCurrentInstrument,
+        getCurrentInstrument: this.getCurrentInstrument
       }
     };
   }
@@ -42,14 +52,27 @@ class DataProvider extends React.Component {
     this.ws.close();
   }
 
-  getCurrentInstrument() {
-    return this.state.bitmex.instrument;
-  }
+  changeCurrentInstrument = newCurrentInstrument => {
+    this.setState(
+      produce(draft => {
+        draft.bitmex.currentInstrument = newCurrentInstrument;
+      })
+    );
+  };
 
+  getCurrentInstrument = () => {
+    return this.state.bitmex.currentInstrument;
+  };
+
+  getSymbols = () => {
+    return this.state.bitmex.symbols;
+  };
+
+  // Gets table of the currently active instrument
   getTable(tableName) {
-    const instrument = this.getCurrentInstrument();
+    const symbol = this.getCurrentInstrument();
 
-    return this.state.bitmex.data[`${instrument}:${tableName}`];
+    return this.state.bitmex.data[`${symbol}:${tableName}`];
   }
 
   getOrders = () => {
@@ -60,12 +83,24 @@ class DataProvider extends React.Component {
     return [];
   };
 
+  getAllOrders = () => {
+    return Object.keys(this.state.bitmex.data)
+      .filter(x => x.endsWith("order"))
+      .reduce((acc, x) => acc.concat(this.state.bitmex.data[x]), []);
+  };
+
   getPositions = () => {
     if (this.getTable("position")) {
       return this.getTable("position");
     }
 
     return [];
+  };
+
+  getAllPositions = () => {
+    return Object.keys(this.state.bitmex.data)
+      .filter(x => x.endsWith("position"))
+      .reduce((acc, x) => acc.concat(this.state.bitmex.data[x]), []);
   };
 
   orderValueXBT = amountUSD => {

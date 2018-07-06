@@ -2,6 +2,7 @@ import React from "react";
 import ReactTable from "components/ReactTable";
 import numeral from "numeral";
 import { Button, Icon } from "semantic-ui-react";
+import { symbols } from "config";
 
 const canCancel = order =>
   order.ordStatus !== "Canceled" && order.ordStatus !== "Filled";
@@ -15,6 +16,7 @@ export const OrdersTable = ({ cancelOrder, orders }) => (
   <ReactTable
     data={orders.filter(canCancel)}
     minRows={0}
+    noDataText="No active orders"
     showPagination={false}
     getTrProps={(state, rowInfo, column) => {
       return {
@@ -34,7 +36,30 @@ export const OrdersTable = ({ cancelOrder, orders }) => (
       },
       {
         Header: "Symbol",
-        accessor: "symbol"
+        accessor: "symbol",
+        filterable: true,
+        filterMethod: (filter, row) => {
+          if (filter.value === "all") {
+            return true;
+          }
+
+          return row[filter.id] === filter.value;
+        },
+        // eslint-disable-next-line react/prop-types
+        Filter: ({ filter, onChange }) => (
+          <select
+            onChange={event => onChange(event.target.value)}
+            style={{ width: "100%" }}
+            value={filter ? filter.value : "all"}
+          >
+            <option value="all">All</option>
+            {symbols.map(x => (
+              <option value={x} key={x}>
+                {x}
+              </option>
+            ))}
+          </select>
+        )
       },
       {
         Header: "Quantity",

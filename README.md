@@ -4,13 +4,19 @@ _A tool for creating scaled orders / bulk orders on Bitmex_
 
 ![Preview](https://i.imgur.com/FjPDll9.png)
 
-Video demo: https://streamable.com/04rxn
-
-Currently hardcoded to XBTUSD.
+Video demo: https://streamable.com/d3qr4
 
 **You should only run this locally.**
 
-For changelog see https://github.com/nice-table/bitmex-scaled-orders/releases
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Startup](#startup)
+- [Adding more instruments](#adding-more-instruments)
+- [Tests](#tests)
+- [Changelog](#changelog)
+- [TODO](#todo)
+- [Maybe](#maybe)
 
 ## Requirements
 
@@ -35,15 +41,32 @@ Get these running at the same time
 - `npm run proxy`
 - `npm start`
 
+## Adding more instruments
+
+By default only XBTUSD instrument is enabled, but you can add more by editing the symbols array in `src/config/index.js`.
+
+```
+  // Default
+  symbols: ["XBTUSD"],
+
+  // Enable both XBTUSD and XBTU18 (futures)
+  symbols: ["XBTUSD", "XBTU18"],
+```
+
+The app will automatically reload with the new instruments (if already running)
+
 ## Tests
 
 Tests can be run in a terminal:
 
 `npm test`
 
+## Changelog
+
+For changelog see https://github.com/nice-table/bitmex-scaled-orders/releases
+
 ## TODO
 
-- Support more BTC instruments (futures)
 - Warn user if one or more orders may be executed as a market order
 
 ## Maybe
