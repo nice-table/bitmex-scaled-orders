@@ -2,7 +2,7 @@
 
 _A tool for creating scaled orders / bulk orders on Bitmex_
 
-![Preview](https://i.imgur.com/FjPDll9.png)
+![Preview](https://i.imgur.com/dWgDAeg.png)
 
 Video demo: https://streamable.com/d3qr4
 
