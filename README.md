@@ -53,6 +53,8 @@ By default only XBTUSD instrument is enabled, but you can add more by editing th
   symbols: ["XBTUSD", "XBTU18"],
 ```
 
+**NOTE: Only BTC futures like XBTU18 and XBTZ18 are supported. Do not add something like UP or DOWN, or ETH instruments etc.**
+
 The app will automatically reload with the new instruments (if already running)
 
 ## Tests
