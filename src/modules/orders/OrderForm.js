@@ -4,7 +4,7 @@ import numeral from "numeral";
 import _ from "lodash";
 import ReactTable from "components/ReactTable";
 import { Formik, Form, Field } from "formik";
-import Yup from "yup";
+import * as Yup from "yup";
 import { Button, Header, Divider, Confirm } from "semantic-ui-react";
 import { RadioButton, RadioButtonGroup } from "form/Radio";
 import { Toggle } from "form/Toggle";
