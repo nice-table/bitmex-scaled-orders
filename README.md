@@ -24,7 +24,7 @@ Video demo: https://streamable.com/d3qr4
 
 ## Startup
 
-Open a terminal and run the following:
+Open a terminal and run the following from the project folder:
 
 - `npm install`
 
