@@ -17,7 +17,6 @@ import Persist from "form/formik-persist";
 
 class OrderForm extends React.PureComponent {
   static propTypes = {
-    submitting: PropTypes.bool.isRequired,
     createOrders: PropTypes.func.isRequired,
     currentInstrument: PropTypes.string.isRequired
   };
@@ -70,8 +69,6 @@ class OrderForm extends React.PureComponent {
   }
 
   render() {
-    const { submitting } = this.props;
-
     return (
       <Formik
         initialValues={{
@@ -85,7 +82,7 @@ class OrderForm extends React.PureComponent {
           hidden: false
         }}
         isInitialValid
-        onSubmit={vals => {
+        onSubmit={(vals, actions) => {
           const orders = generateOrders(vals);
           const execInst = [];
 
@@ -115,7 +112,11 @@ class OrderForm extends React.PureComponent {
             execInst: execInst.length > 0 ? execInst.join(",") : undefined
           }));
 
-          this.props.createOrders({ body: { orders: apiOrders } });
+          actions.setSubmitting(true);
+
+          this.props
+            .createOrders({ body: { orders: apiOrders } })
+            .then(() => actions.setSubmitting(false));
         }}
         validationSchema={props =>
           Yup.object().shape({
@@ -155,6 +156,7 @@ class OrderForm extends React.PureComponent {
           touched,
           setFieldValue,
           submitForm,
+          isSubmitting,
           isValid
         }) => (
           <React.Fragment>
@@ -271,7 +273,7 @@ class OrderForm extends React.PureComponent {
               <Flex>
                 <div style={{ marginLeft: "auto" }}>
                   <Button
-                    disabled={!isValid || submitting}
+                    disabled={!isValid || isSubmitting}
                     type="submit"
                     color="green"
                     onClick={e => {
@@ -286,7 +288,7 @@ class OrderForm extends React.PureComponent {
 
                   <Button
                     style={{ marginRight: 0, marginLeft: "10px" }}
-                    disabled={!isValid || submitting}
+                    disabled={!isValid || isSubmitting}
                     type="submit"
                     color="red"
                     onClick={e => {
