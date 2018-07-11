@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import ReactTable from "components/ReactTable";
 import numeral from "numeral";
+import { pure } from "recompose";
 
 const PositionStatus = styled.span`
   ${props => props.pnl > 0 && "color: green"};
@@ -10,9 +11,9 @@ const PositionStatus = styled.span`
 
 const satoshiToBTC = satoshi => satoshi / 10 ** 8;
 
-export const PositionsTable = ({ positions }) => (
+export const PositionsTable = pure(({ positions }) => (
   <ReactTable
-    data={positions}
+    data={positions.filter(x => x.isOpen)}
     minRows={0}
     noDataText="No open positions"
     showPagination={false}
@@ -62,4 +63,4 @@ export const PositionsTable = ({ positions }) => (
       }
     ]}
   />
-);
+));

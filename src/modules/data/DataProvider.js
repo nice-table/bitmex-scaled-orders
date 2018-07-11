@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "lodash";
+import { createSelector } from "reselect";
 import sockette from "sockette";
 import produce from "immer";
 import { websocketPort, symbols } from "config";
@@ -7,8 +8,24 @@ import { websocketPort, symbols } from "config";
 const DataContext = React.createContext({
   currentInstrument: _.first(symbols),
   symbols: symbols,
-  data: {}
+  data: {
+    order: {},
+    instrument: {},
+    position: {}
+  }
 });
+
+/* Memoize orders and positions to avoid unnecessary renders */
+const ordersSelector = createSelector(
+  state => state.bitmex.data.order,
+  orders => Object.keys(orders).reduce((acc, x) => acc.concat(orders[x]), [])
+);
+
+const positionsSelector = createSelector(
+  state => state.bitmex.data.position,
+  positions =>
+    Object.keys(positions).reduce((acc, x) => acc.concat(positions[x]), [])
+);
 
 class DataProvider extends React.Component {
   constructor(props) {
@@ -18,7 +35,11 @@ class DataProvider extends React.Component {
       bitmex: {
         currentInstrument: _.first(symbols),
         symbols: symbols,
-        data: {},
+        data: {
+          order: {},
+          instrument: {},
+          position: {}
+        },
         getOrders: this.getOrders,
         getAllOrders: this.getAllOrders,
         getPositions: this.getPositions,
@@ -39,8 +60,16 @@ class DataProvider extends React.Component {
         if (message.source === "bitmex" && message.data) {
           this.setState(
             produce(draft => {
-              draft.bitmex.data[`${message.symbol}:${message.tableName}`] =
-                message.data;
+              if (draft.bitmex.data[message.tableName]) {
+                // Update existing entry
+                draft.bitmex.data[message.tableName][message.symbol] =
+                  message.data;
+              } else {
+                // No previous data. Create new table data
+                draft.bitmex.data[message.tableName] = {
+                  [message.symbol]: message.data
+                };
+              }
             })
           );
         }
@@ -72,7 +101,7 @@ class DataProvider extends React.Component {
   getTable(tableName) {
     const symbol = this.getCurrentInstrument();
 
-    return this.state.bitmex.data[`${symbol}:${tableName}`];
+    return _.get(this.state.bitmex.data, [tableName, symbol]);
   }
 
   getOrders = () => {
@@ -84,9 +113,7 @@ class DataProvider extends React.Component {
   };
 
   getAllOrders = () => {
-    return Object.keys(this.state.bitmex.data)
-      .filter(x => x.endsWith("order"))
-      .reduce((acc, x) => acc.concat(this.state.bitmex.data[x]), []);
+    return ordersSelector(this.state);
   };
 
   getPositions = () => {
@@ -98,9 +125,7 @@ class DataProvider extends React.Component {
   };
 
   getAllPositions = () => {
-    return Object.keys(this.state.bitmex.data)
-      .filter(x => x.endsWith("position"))
-      .reduce((acc, x) => acc.concat(this.state.bitmex.data[x]), []);
+    return positionsSelector(this.state);
   };
 
   orderValueXBT = amountUSD => {

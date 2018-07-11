@@ -66,7 +66,6 @@ class Dashboard extends PureComponent {
                   {data => (
                     <OrderForm
                       currentInstrument={data.getCurrentInstrument()}
-                      submitting={createBulkOrders.fetching}
                       createOrders={createBulkOrders.doFetch}
                     />
                   )}
@@ -78,9 +77,7 @@ class Dashboard extends PureComponent {
                   <Header as="h3">Open positions</Header>{" "}
                   <DataContext.Consumer>
                     {data => (
-                      <PositionsTable
-                        positions={data.getAllPositions().filter(x => x.isOpen)}
-                      />
+                      <PositionsTable positions={data.getAllPositions()} />
                     )}
                   </DataContext.Consumer>
                 </div>
@@ -90,13 +87,7 @@ class Dashboard extends PureComponent {
                   <DataContext.Consumer>
                     {data => (
                       <OrdersTable
-                        orders={data
-                          .getAllOrders()
-                          .filter(
-                            x =>
-                              x.ordType === "Limit" &&
-                              x.ordStatus !== "Rejected"
-                          )}
+                        orders={data.getAllOrders()}
                         cancelOrder={cancelOrder}
                       />
                     )}

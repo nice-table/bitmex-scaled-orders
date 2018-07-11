@@ -1,6 +1,7 @@
 import React from "react";
 import ReactTable from "components/ReactTable";
 import numeral from "numeral";
+import { pure } from "recompose";
 import { Button, Icon } from "semantic-ui-react";
 import { symbols } from "config";
 
@@ -12,9 +13,11 @@ const execInstLabels = {
   ReduceOnly: "Reduce-Only"
 };
 
-export const OrdersTable = ({ cancelOrder, orders }) => (
+export const OrdersTable = pure(({ cancelOrder, orders }) => (
   <ReactTable
-    data={orders.filter(canCancel)}
+    data={orders.filter(
+      x => canCancel(x) && x.ordType === "Limit" && x.ordStatus !== "Rejected"
+    )}
     minRows={0}
     noDataText="No active orders"
     showPagination={false}
@@ -133,4 +136,4 @@ export const OrdersTable = ({ cancelOrder, orders }) => (
       }
     ]}
   />
-);
+));
