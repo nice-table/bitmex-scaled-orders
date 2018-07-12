@@ -27,7 +27,7 @@ const createBitmexSignature = (req, body) => {
 
   const signature = crypto
     .createHmac("sha256", config.apiKeySecret)
-    .update(verb + encodeURI(url) + expires + body)
+    .update(verb + url + expires + body)
     .digest("hex");
 
   return { signature, expires };
