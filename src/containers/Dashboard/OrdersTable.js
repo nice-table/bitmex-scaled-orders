@@ -3,7 +3,6 @@ import ReactTable from "components/ReactTable";
 import numeral from "numeral";
 import { pure } from "recompose";
 import { Button, Icon } from "semantic-ui-react";
-import { symbols } from "config";
 
 const canCancel = order =>
   order.ordStatus !== "Canceled" && order.ordStatus !== "Filled";
@@ -15,9 +14,7 @@ const execInstLabels = {
 
 export const OrdersTable = pure(({ cancelOrder, orders }) => (
   <ReactTable
-    data={orders.filter(
-      x => canCancel(x) && x.ordType === "Limit" && x.ordStatus !== "Rejected"
-    )}
+    data={orders.filter(x => canCancel(x) && x.ordStatus !== "Rejected")}
     minRows={0}
     noDataText="No active orders"
     showPagination={false}
@@ -38,6 +35,7 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
         show: false
       },
       {
+        maxWidth: 110,
         Header: "Symbol",
         accessor: "symbol",
         filterable: true,
@@ -56,7 +54,7 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
             value={filter ? filter.value : "all"}
           >
             <option value="all">All</option>
-            {symbols.map(x => (
+            {[...new Set(orders.map(x => x.symbol))].map(x => (
               <option value={x} key={x}>
                 {x}
               </option>
@@ -66,18 +64,56 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
       },
       {
         Header: "Quantity",
+        width: 100,
         accessor: "orderQty",
         Cell: ({ value }) => numeral(value).format("0,0")
       },
       {
+        id: "price",
         Header: "Price",
-        accessor: "price",
-        Cell: ({ value }) => numeral(value).format("0,0")
+        width: 100,
+        accessor: d => (d.ordType === "Stop" ? d.stopPx : d.price),
+        Cell: ({ value, original }) => {
+          let prefix = "";
+
+          if (original.ordType === "Stop" && original.side === "Sell") {
+            prefix = "<= ";
+          }
+
+          if (original.ordType === "Stop" && original.side === "Buy") {
+            prefix = ">= ";
+          }
+
+          return `${prefix}${value}`;
+        }
       },
       {
         Header: "Type",
         accessor: "ordType",
-        maxWidth: 100
+        filterable: true,
+        filterMethod: (filter, row) => {
+          if (filter.value === "all") {
+            return true;
+          }
+
+          return row[filter.id] === filter.value;
+        },
+        // eslint-disable-next-line react/prop-types
+        Filter: ({ filter, onChange }) => (
+          <select
+            onChange={event => onChange(event.target.value)}
+            style={{ width: "100%" }}
+            value={filter ? filter.value : "all"}
+          >
+            <option value="all">All</option>
+            {[...new Set(orders.map(x => x.ordType))].map(x => (
+              <option value={x} key={x}>
+                {x}
+              </option>
+            ))}
+          </select>
+        ),
+        width: 100
       },
       {
         Header: "Status",
