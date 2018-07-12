@@ -12,7 +12,6 @@ module.exports = {
   apiKeySecret: "changeme",
 
   // Websocket
-  symbols: ["XBTUSD"],
   streams: ["instrument", "order", "position"],
 
   // This prevents memory usage from getting out of control. Tweak to your needs.

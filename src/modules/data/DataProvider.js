@@ -1,18 +1,27 @@
 import React from "react";
+import PropTypes from "prop-types";
 import _ from "lodash";
 import { createSelector } from "reselect";
 import sockette from "sockette";
 import produce from "immer";
-import { websocketPort, symbols } from "config";
+import { websocketPort } from "config";
 
 const DataContext = React.createContext({
-  currentInstrument: _.first(symbols),
-  symbols: symbols,
+  currentInstrument: null,
+  symbols: [],
   data: {
     order: {},
     instrument: {},
     position: {}
-  }
+  },
+  getOrders: () => [],
+  getAllOrders: () => [],
+  getPositions: () => [],
+  getAllPositions: () => [],
+  orderValueXBT: () => null,
+  getSymbols: () => [],
+  changeCurrentInstrument: () => null,
+  getCurrentInstrument: () => null
 });
 
 /* Memoize orders and positions to avoid unnecessary renders */
@@ -28,13 +37,19 @@ const positionsSelector = createSelector(
 );
 
 class DataProvider extends React.Component {
+  static propTypes = {
+    instrumentsSymbols: PropTypes.array.isRequired
+  };
+
   constructor(props) {
     super(props);
 
+    const { instrumentsSymbols } = props;
+
     this.state = {
       bitmex: {
-        currentInstrument: _.first(symbols),
-        symbols: symbols,
+        currentInstrument: _.first(instrumentsSymbols),
+        symbols: instrumentsSymbols,
         data: {
           order: {},
           instrument: {},
@@ -53,7 +68,10 @@ class DataProvider extends React.Component {
   }
 
   componentDidMount() {
-    this.ws = new sockette(`ws://localhost:${websocketPort}`, {
+    const { instrumentsSymbols } = this.props;
+    const symbolsQuery = `symbols=${instrumentsSymbols.join(",")}`;
+
+    this.ws = new sockette(`ws://localhost:${websocketPort}?${symbolsQuery}`, {
       onmessage: e => {
         const message = JSON.parse(e.data);
 
@@ -94,7 +112,7 @@ class DataProvider extends React.Component {
   };
 
   getSymbols = () => {
-    return this.state.bitmex.symbols;
+    return this.props.instrumentsSymbols;
   };
 
   // Gets table of the currently active instrument

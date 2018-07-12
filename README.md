@@ -10,13 +10,25 @@ Video demo: https://streamable.com/d3qr4
 
 ## Table of Contents
 
+- [Features](#features)
 - [Requirements](#requirements)
 - [Startup](#startup)
-- [Adding more instruments](#adding-more-instruments)
 - [Tests](#tests)
 - [Changelog](#changelog)
 - [TODO](#todo)
 - [Maybe](#maybe)
+
+## Features
+
+- Generate limit buy/sell orders based on user input
+  - Amount
+  - Number of orders
+  - Upper price and lower price
+  - Spread amount evenly, increasingly or decreasingly
+- Supports XBTUSD and XBT futures instruments
+- View current positions
+- View and cancel current orders
+- Retry on overload until successful
 
 ## Requirements
 
@@ -40,22 +52,6 @@ Get these running at the same time
 
 - `npm run proxy`
 - `npm start`
-
-## Adding more instruments
-
-By default only XBTUSD instrument is enabled, but you can add more by editing the symbols array in `src/config/index.js`.
-
-```
-  // Default
-  symbols: ["XBTUSD"],
-
-  // Enable both XBTUSD and XBTU18 (futures)
-  symbols: ["XBTUSD", "XBTU18"],
-```
-
-**NOTE: Only BTC futures like XBTU18 and XBTZ18 are supported. Do not add something like UP or DOWN, or ETH instruments etc.**
-
-The app will automatically reload with the new instruments (if already running)
 
 ## Tests
 

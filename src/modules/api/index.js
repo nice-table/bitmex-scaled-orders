@@ -25,8 +25,6 @@ export const BitmexFetch = ({
 
     if (verb !== "GET") {
       init.body = JSON.stringify(init.body);
-    } else {
-      init.body = "";
     }
 
     init.headers = {
