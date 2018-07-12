@@ -1,17 +1,15 @@
-import React, { PureComponent } from "react";
+import React from "react";
 import { Flex, Box } from "grid-styled";
 import { Header } from "semantic-ui-react";
 import Composer from "react-composer";
 import { toast } from "react-toastify";
-import { Tabs, Tab } from "components/Tabs";
-import { PlainButton } from "components/Buttons";
-
 import { DataContext } from "modules/data";
 import { OrderForm, CreateBulkBtcOrders, CancelOrder } from "modules/orders";
 import { OrdersTable } from "./OrdersTable";
 import { PositionsTable } from "./PositionsTable";
+import { InstrumentTabs } from "./InstrumentTabs";
 
-class Dashboard extends PureComponent {
+class Dashboard extends React.Component {
   render() {
     return (
       <Composer
@@ -38,25 +36,11 @@ class Dashboard extends PureComponent {
 
             <DataContext.Consumer>
               {data => (
-                <Tabs mb={3}>
-                  {data.getSymbols().map(symbol => (
-                    <Tab
-                      px={0}
-                      py={0}
-                      mr={2}
-                      active={symbol === data.getCurrentInstrument()}
-                      key={symbol}
-                    >
-                      <PlainButton
-                        p={3}
-                        aria-label="Change symbol"
-                        onClick={() => data.changeCurrentInstrument(symbol)}
-                      >
-                        {symbol}
-                      </PlainButton>
-                    </Tab>
-                  ))}
-                </Tabs>
+                <InstrumentTabs
+                  instruments={data.getSymbols()}
+                  currentInstrument={data.getCurrentInstrument()}
+                  changeCurrentInstrument={data.changeCurrentInstrument}
+                />
               )}
             </DataContext.Consumer>
 
