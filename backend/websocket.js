@@ -5,8 +5,14 @@ const config = require("../src/config");
 const wss = new WebSocket.Server({ port: config.websocketPort });
 console.log("Started webocket server on port", config.websocketPort);
 
-wss.on("connection", function connection(ws) {
+wss.on("connection", function connection(ws, req) {
   let isAlive = true;
+
+  const urlParsed = require("url").parse(req.url, true);
+
+  const symbols = urlParsed.query.symbols
+    ? urlParsed.query.symbols.split(",")
+    : [];
 
   ws.send(JSON.stringify({ source: "local", message: "Connected to proxy" }));
 
@@ -31,7 +37,7 @@ wss.on("connection", function connection(ws) {
     );
   });
 
-  config.symbols.forEach(function(symbol) {
+  symbols.forEach(function(symbol) {
     config.streams.forEach(function(streamName) {
       client.addStream(symbol, streamName, function(data, symbol, tableName) {
         if (!isAlive) {
