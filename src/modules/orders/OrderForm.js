@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import numeral from "numeral";
 import _ from "lodash";
-import ReactTable from "components/ReactTable";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { Button, Header, Divider, Confirm } from "semantic-ui-react";
@@ -14,6 +13,8 @@ import { generateOrders } from "./scaledOrderGenerator";
 import { ORDER_DISTRIBUTIONS } from "./constants";
 import { DataContext } from "modules/data";
 import Persist from "form/formik-persist";
+import ReactTooltip from "react-tooltip";
+import { OrderPreview } from "./OrderPreview";
 
 class OrderForm extends React.PureComponent {
   static propTypes = {
@@ -21,11 +22,15 @@ class OrderForm extends React.PureComponent {
     currentInstrument: PropTypes.string.isRequired
   };
 
-  state = { open: false };
+  state = { open: false, isRetrying: false };
 
   showConfirmModal = () => this.setState({ open: true });
   handleConfirm = () => this.setState({ open: false });
   handleCancel = () => this.setState({ open: false });
+
+  // Whether we're retrying to submit orders to Bitmex in case we're hit with overload responses
+  // State is used in order to be able to stop the retry loop by button click for example
+  setIsRetrying = isRetrying => this.setState({ isRetrying });
 
   renderPreview(values) {
     let orders = generateOrders(values);
@@ -38,32 +43,7 @@ class OrderForm extends React.PureComponent {
     return (
       <React.Fragment>
         <Header as="h3">Order preview</Header>
-        <ReactTable
-          data={orders}
-          minRows={0}
-          showPagination={false}
-          pageSize={orders.length}
-          columns={[
-            {
-              Header: "Price",
-              accessor: "price",
-              Cell: ({ value }) => numeral(value).format("0,0"),
-              Footer: () => (
-                <div>
-                  Avg. price:{" "}
-                  {numeral(
-                    _.sum(orders.map(x => x.price * x.amount)) / values.amount
-                  ).format("0,0")}
-                </div>
-              )
-            },
-            {
-              Header: "Amount",
-              accessor: "amount",
-              Cell: ({ value }) => numeral(value).format("0,0")
-            }
-          ]}
-        />
+        <OrderPreview orders={orders} orderAmount={values.amount} />
       </React.Fragment>
     );
   }
@@ -82,14 +62,14 @@ class OrderForm extends React.PureComponent {
           hidden: false
         }}
         isInitialValid
-        onSubmit={(vals, actions) => {
-          const orders = generateOrders(vals);
+        onSubmit={(values, actions) => {
+          const orders = generateOrders(values);
           const execInst = [];
 
           /*
             Also known as a Post-Only order. If this order would have executed on placement, it will cancel instead.
           */
-          if (vals.postOnly === true) {
+          if (values.postOnly === true) {
             execInst.push("ParticipateDoNotInitiate");
           }
 
@@ -98,31 +78,58 @@ class OrderForm extends React.PureComponent {
             If you have a 'ReduceOnly' limit order that rests in the order book while the position is reduced by other orders, then its order quantity will be amended down or canceled.
             If there are multiple 'ReduceOnly' orders the least agresssive will be amended first.
           */
-          if (vals.reduceOnly === true) {
+          if (values.reduceOnly === true) {
             execInst.push("ReduceOnly");
           }
 
           const apiOrders = orders.map(x => ({
             symbol: this.props.currentInstrument,
             ordType: "Limit",
-            side: vals.orderType,
+            side: values.orderType,
             orderQty: x.amount,
             price: x.price,
-            displayQty: vals.hidden === true ? 0 : undefined,
+            displayQty: values.hidden === true ? 0 : undefined,
             execInst: execInst.length > 0 ? execInst.join(",") : undefined
           }));
 
           actions.setSubmitting(true);
 
-          this.props
-            .createOrders({ body: { orders: apiOrders } })
-            .then(() => actions.setSubmitting(false));
+          if (values.retryOnOverload) {
+            this.setIsRetrying(true);
+          }
+
+          const submitOrders = () =>
+            new Promise((resolve, reject) => {
+              this.props
+                .createOrders({ body: { orders: apiOrders } })
+                .then(resp => {
+                  // https://www.bitmex.com/app/restAPI#Overload
+                  if (
+                    resp.response &&
+                    resp.response.status === 503 &&
+                    this.state.isRetrying === true
+                  ) {
+                    setTimeout(() => {
+                      submitOrders().then(resolve);
+                    }, 500); // Wait 500ms as specified by Bitmex before retrying on overload
+                  } else {
+                    resolve(resp);
+                  }
+                })
+                .catch(reject);
+            });
+
+          submitOrders().finally(() => {
+            actions.setSubmitting(false);
+            this.setIsRetrying(false);
+          });
         }}
         validationSchema={props =>
           Yup.object().shape({
             postOnly: Yup.boolean().label("Post-Only"),
             reduceOnly: Yup.boolean().label("Reduce-Only"),
             hidden: Yup.boolean().label("Hidden"),
+            retryOnOverload: Yup.boolean().label("Retry on overload"),
             distribution: Yup.string()
               .label("Distribution")
               .required(),
@@ -243,26 +250,84 @@ class OrderForm extends React.PureComponent {
                   <Flex flexWrap="wrap">
                     <Box w={1} mb={2}>
                       <Field
+                        data-tip
+                        data-for="post-only-message"
                         name="postOnly"
                         component={Toggle}
                         label="Post-Only"
                         disabled={values.hidden === true}
                       />
+                      <ReactTooltip
+                        place="right"
+                        id="post-only-message"
+                        effect="solid"
+                        multiline
+                      >
+                        A Post-Only Order will not execute immediately against
+                        the market. Use to ensure a Maker Rebate. <br />
+                        If it would execute against resting orders, it will
+                        cancel instead.
+                      </ReactTooltip>
                     </Box>
+
                     <Box w={1} mb={2}>
                       <Field
+                        data-tip
+                        data-for="reduce-only-message"
                         name="reduceOnly"
                         component={Toggle}
                         label="Reduce-Only"
                       />
+                      <ReactTooltip
+                        place="right"
+                        id="reduce-only-message"
+                        effect="solid"
+                        multiline
+                      >
+                        A Reduce-Only Order will only reduce your position, not
+                        increase it. <br />
+                        If this order would increase your position, it is
+                        amended down or canceled such that it does not.
+                      </ReactTooltip>
                     </Box>
-                    <Box w={1}>
+
+                    <Box mb={2} w={1}>
                       <Field
+                        data-tip
+                        data-for="hidden-message"
                         name="hidden"
                         component={Toggle}
                         label="Hidden"
                         disabled={values.postOnly === true}
                       />
+                      <ReactTooltip
+                        place="right"
+                        id="hidden-message"
+                        effect="solid"
+                        multiline
+                      >
+                        Hidden orders do not display in the order book
+                      </ReactTooltip>
+                    </Box>
+
+                    <Box w={1}>
+                      <Field
+                        data-tip
+                        data-for="overload-message"
+                        name="retryOnOverload"
+                        component={Toggle}
+                        label="Retry on overload"
+                      />
+
+                      <ReactTooltip
+                        place="right"
+                        id="overload-message"
+                        effect="solid"
+                        multiline
+                      >
+                        Will re-submit every 500 ms when Bitmex responds with
+                        overload message until successful
+                      </ReactTooltip>
                     </Box>
                   </Flex>
                 </Box>
@@ -300,6 +365,16 @@ class OrderForm extends React.PureComponent {
                   >
                     Sell / short
                   </Button>
+
+                  {this.state.isRetrying && (
+                    <Button
+                      type="button"
+                      style={{ marginRight: 0, marginLeft: "10px" }}
+                      onClick={() => this.setIsRetrying(false)}
+                    >
+                      Stop retrying
+                    </Button>
+                  )}
                 </div>
               </Flex>
 
