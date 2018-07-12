@@ -48,6 +48,11 @@ export const PositionsTable = pure(({ positions }) => (
         Cell: ({ value }) => numeral(value).format("0,0")
       },
       {
+        Header: "Liq. price",
+        accessor: "liquidationPrice",
+        Cell: ({ value }) => numeral(value).format("0,0")
+      },
+      {
         Header: "Unrealised PNL",
         accessor: "unrealisedPnl",
         Cell: ({ value }) => (
