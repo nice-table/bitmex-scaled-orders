@@ -5,7 +5,7 @@ import { createSelector } from "reselect";
 import sockette from "sockette";
 import produce from "immer";
 import { websocketPort } from "config";
-import queryString from "query-string";
+import queryString from "qs";
 
 const intialData = {
   order: {},

@@ -42,18 +42,12 @@ Open a terminal and run the following from the project folder:
 
 - `npm install`
 
-Logon Bitmex and create an API key with order permissions https://www.bitmex.com/app/apiKeys.
-
-Edit the properties in `src/config/index.js`. Mainly:
-
-- `apiKeyID`
-- `apiKeySecret`
-- `testnet` - Whether you want to use Bitmex's testnet or production. Note that testnet and production have separate API keys.
-
-Get these running at the same time
+Get these running in a terminal at the same time
 
 - `npm run proxy`
 - `npm start`
+
+App should open in your browser automatically and render when ready.
 
 ## Tests
 

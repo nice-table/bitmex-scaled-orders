@@ -1,3 +1,15 @@
+/*
+  Creates a websocket server for the front-end to connect to.
+
+  On connection the server opens a websocket connection to Bitmex.
+  The reason I opted for this instead of directly opening a websocket to Bitmex
+  in the browser is because the Bitmex package "bitmex-realtime-api" only works in a nodejs environment (due to its dependency on the "ws" package).
+
+  Browser connects to local websocket server =>
+  Websocket server opens connection to Bitmex and listens for messages =>
+  Websocket server relays messages from Bitmex to websocket client/browser connection
+*/
+
 const WebSocket = require("ws");
 const BitMEXClient = require("@nice-table/bitmex-realtime-api");
 const config = require("../src/config");
