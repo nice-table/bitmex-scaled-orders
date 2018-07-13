@@ -42,10 +42,9 @@ Open a terminal and run the following from the project folder:
 
 - `npm install`
 
-Get these running in a terminal at the same time
+When `npm install` has finished, we are ready to start the app. Run this in a terminal:
 
-- `npm run proxy`
-- `npm start`
+- `npm run startup`
 
 App should open in your browser automatically and render when ready.
 

@@ -5,6 +5,7 @@
   "dependencies": {
     "@nice-table/bitmex-realtime-api": "0.3.2",
     "body-parser": "^1.18.2",
+    "concurrently": "^3.6.0",
     "express": "^4.16.3",
     "formik": "1.0.1",
     "grid-styled": "^4.3.2",
@@ -36,7 +37,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:prod": "cross-env NODE_ENV=production react-scripts start",
+    "startup": "concurrently \"npm:proxy\" \"npm:start\"",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
@@ -44,7 +45,6 @@
     "postinstall": "node postinstall.js"
   },
   "devDependencies": {
-    "cross-env": "^5.2.0",
     "nodemon": "^1.17.5",
     "prettier": "^1.13.7",
     "pretty-quick": "^1.6.0"
