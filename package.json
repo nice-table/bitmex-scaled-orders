@@ -14,6 +14,7 @@
     "numeral": "^2.0.6",
     "prop-types": "^15.6.2",
     "qs": "^6.5.1",
+    "query-string": "^6.1.0",
     "react": "^16.4.1",
     "react-composer": "^5.0.0",
     "react-dom": "^16.4.1",

@@ -5,13 +5,7 @@ module.exports = {
   // Bitmex REST API proxy port
   httpProxyPort: 8000,
 
-  // Bitmex
-  testnet: true, // set `true` to connect to the testnet site (testnet.bitmex.com)
-
-  apiKeyID: "changeme",
-  apiKeySecret: "changeme",
-
-  // Websocket
+  // Websocket streams. Should not change these
   streams: ["instrument", "order", "position"],
 
   // This prevents memory usage from getting out of control. Tweak to your needs.

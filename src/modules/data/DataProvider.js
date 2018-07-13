@@ -5,15 +5,18 @@ import { createSelector } from "reselect";
 import sockette from "sockette";
 import produce from "immer";
 import { websocketPort } from "config";
+import queryString from "query-string";
+
+const intialData = {
+  order: {},
+  instrument: {},
+  position: {}
+};
 
 const DataContext = React.createContext({
   currentInstrument: null,
   symbols: [],
-  data: {
-    order: {},
-    instrument: {},
-    position: {}
-  },
+  data: intialData,
   getOrders: () => [],
   getAllOrders: () => [],
   getPositions: () => [],
@@ -38,7 +41,8 @@ const positionsSelector = createSelector(
 
 class DataProvider extends React.Component {
   static propTypes = {
-    instrumentsSymbols: PropTypes.array.isRequired
+    instrumentsSymbols: PropTypes.array.isRequired,
+    apiContext: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -68,10 +72,38 @@ class DataProvider extends React.Component {
   }
 
   componentDidMount() {
-    const { instrumentsSymbols } = this.props;
-    const symbolsQuery = `symbols=${instrumentsSymbols.join(",")}`;
+    this.connectToToWebocketApi();
+  }
 
-    this.ws = new sockette(`ws://localhost:${websocketPort}?${symbolsQuery}`, {
+  componentDidUpdate(prevProps, prevState) {
+    // API keys have changed, so we have to close and reconnect to websocket API
+    if (this.props.apiContext !== prevProps.apiContext) {
+      this.ws.close();
+
+      // Reset state of data in case we're switching from testnet to prod or vice versa
+      this.setState(
+        produce(draft => {
+          draft.bitmex.data = intialData;
+        })
+      );
+
+      this.connectToToWebocketApi();
+    }
+  }
+
+  connectToToWebocketApi() {
+    const { instrumentsSymbols, apiContext } = this.props;
+
+    const apikeys = apiContext.getActiveKeys();
+
+    const queries = queryString.stringify({
+      symbols: instrumentsSymbols.join(","),
+      testnet: apiContext.testnet,
+      apiKeyID: apikeys.apiKeyID,
+      apiKeySecret: apikeys.apiKeySecret
+    });
+
+    this.ws = new sockette(`ws://localhost:${websocketPort}?${queries}`, {
       onmessage: e => {
         const message = JSON.parse(e.data);
 

@@ -6,6 +6,14 @@ const wss = new WebSocket.Server({ port: config.websocketPort });
 console.log("Started webocket server on port", config.websocketPort);
 
 wss.on("connection", function connection(ws, req) {
+  /*
+    I wasn't able to figure out how to close the connection opened by BitMEXClient
+    If connection to this websocket proxy is closed, the BitMEXClient connection
+    would still try to publish messages from Bitmex to the closed connection
+
+    Workaround is to set this bool to false when proxy connection closes and check
+    this value whether we should relay any messages back to client
+  */
   let isAlive = true;
 
   const urlParsed = require("url").parse(req.url, true);
@@ -17,9 +25,9 @@ wss.on("connection", function connection(ws, req) {
   ws.send(JSON.stringify({ source: "local", message: "Connected to proxy" }));
 
   const client = new BitMEXClient({
-    testnet: config.testnet,
-    apiKeyID: config.apiKeyID,
-    apiKeySecret: config.apiKeySecret,
+    testnet: String(urlParsed.query.testnet).toLowerCase() === "true",
+    apiKeyID: urlParsed.query.apiKeyID,
+    apiKeySecret: urlParsed.query.apiKeySecret,
     maxTableLen: config.maxTableLen
   });
 
