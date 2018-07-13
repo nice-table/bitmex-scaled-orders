@@ -36,6 +36,8 @@ Video demo: https://streamable.com/d3qr4
 
 ## Startup
 
+Download latest release from https://github.com/nice-table/bitmex-scaled-orders/releases/latest or clone the project.
+
 Open a terminal and run the following from the project folder:
 
 - `npm install`
