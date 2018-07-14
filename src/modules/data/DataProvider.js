@@ -24,7 +24,8 @@ const DataContext = React.createContext({
   orderValueXBT: () => null,
   getSymbols: () => [],
   changeCurrentInstrument: () => null,
-  getCurrentInstrument: () => null
+  getCurrentInstrument: () => null,
+  getLastPrice: () => null
 });
 
 /* Memoize orders and positions to avoid unnecessary renders */
@@ -66,7 +67,8 @@ class DataProvider extends React.Component {
         orderValueXBT: this.orderValueXBT,
         getSymbols: this.getSymbols,
         changeCurrentInstrument: this.changeCurrentInstrument,
-        getCurrentInstrument: this.getCurrentInstrument
+        getCurrentInstrument: this.getCurrentInstrument,
+        getLastPrice: this.getLastPrice
       }
     };
   }
@@ -176,6 +178,24 @@ class DataProvider extends React.Component {
 
   getAllPositions = () => {
     return positionsSelector(this.state);
+  };
+
+  getLastPrice = symbol => {
+    const instrumentTable = _.get(this.state.bitmex.data, [
+      "instrument",
+      symbol
+    ]);
+
+    if (!instrumentTable) {
+      return null;
+    }
+
+    const instrument = _.last(instrumentTable);
+    if (!instrument) {
+      return null;
+    }
+
+    return instrument.lastPrice;
   };
 
   orderValueXBT = amountUSD => {
