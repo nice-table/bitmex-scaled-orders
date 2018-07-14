@@ -20,7 +20,7 @@ Video demo: https://streamable.com/d3qr4
 
 ## Features
 
-- Generate limit buy/sell orders based on user input
+- Generate limit buy/sell orders based on a set of variables:
   - Amount
   - Number of orders
   - Upper price and lower price
@@ -29,6 +29,7 @@ Video demo: https://streamable.com/d3qr4
 - View current positions
 - View and cancel current orders
 - Retry on overload until successful
+- Supports testnet and production
 
 ## Requirements
 
