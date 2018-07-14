@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Flex, Box } from "grid-styled";
 import { Formik, Form, Field } from "formik";
-import { Toggle } from "form/Toggle";
+import { Toggle, Checkbox } from "form/Toggle";
 import { TextInput } from "form/TextInput";
 import { Button } from "semantic-ui-react";
 import * as Yup from "yup";
@@ -17,7 +17,8 @@ class ApiKeyForm extends React.Component {
           productionApiKeyID: "",
           productionApiKeySecret: "",
           testnetApiKeyID: "",
-          testnetApiKeySecret: ""
+          testnetApiKeySecret: "",
+          showKeysText: false
         }}
         validationSchema={() => {
           return Yup.lazy(values => {
@@ -60,6 +61,7 @@ class ApiKeyForm extends React.Component {
                   <Field
                     name="productionApiKeyID"
                     component={TextInput}
+                    type={values.showKeysText ? "input" : "password"}
                     label="Api key ID"
                   />
                 </Box>
@@ -67,6 +69,7 @@ class ApiKeyForm extends React.Component {
                   <Field
                     name="productionApiKeySecret"
                     component={TextInput}
+                    type={values.showKeysText ? "input" : "password"}
                     label="Api key secret"
                   />
                 </Box>
@@ -79,6 +82,7 @@ class ApiKeyForm extends React.Component {
                   <Field
                     name="testnetApiKeyID"
                     component={TextInput}
+                    type={values.showKeysText ? "input" : "password"}
                     label="Testnet Api key ID"
                   />
                 </Box>
@@ -86,11 +90,14 @@ class ApiKeyForm extends React.Component {
                   <Field
                     name="testnetApiKeySecret"
                     component={TextInput}
+                    type={values.showKeysText ? "input" : "password"}
                     label="Testnet Api key secret"
                   />
                 </Box>
               </Flex>
             )}
+
+            <Field name="showKeysText" component={Checkbox} label="Show keys" />
 
             <Flex>
               <div style={{ marginLeft: "auto" }}>
@@ -121,9 +128,7 @@ const ApiKeyFormWrapper = props => (
         onSubmit={values => {
           data.setApiKeys(values);
 
-          if (props.afterSubmit) {
-            props.afterSubmit();
-          }
+          props.afterSubmit();
         }}
         {...props}
       />
@@ -133,6 +138,10 @@ const ApiKeyFormWrapper = props => (
 
 ApiKeyFormWrapper.propTypes = {
   afterSubmit: PropTypes.func
+};
+
+ApiKeyFormWrapper.defaultProps = {
+  afterSubmit: function() {}
 };
 
 export { ApiKeyFormWrapper as ApiKeyForm, ApiKeyForm as _ApiKeyForm };

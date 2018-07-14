@@ -1,8 +1,8 @@
 import React from "react";
 import { FieldError } from "./index";
-import { Radio } from "semantic-ui-react";
+import { Radio, Checkbox as SemanticCheckbox } from "semantic-ui-react";
 
-export const Toggle = ({
+const ToggleFactory = (ToggleComponent, factoryProps) => ({
   field: { name, value, onChange, onBlur },
   id,
   form,
@@ -12,8 +12,8 @@ export const Toggle = ({
 }) => {
   return (
     <div>
-      <Radio
-        toggle
+      <ToggleComponent
+        {...factoryProps}
         name={name}
         id={id}
         checked={value}
@@ -29,3 +29,9 @@ export const Toggle = ({
     </div>
   );
 };
+
+export const Toggle = ToggleFactory(Radio, { toggle: true });
+Toggle.displayName = "FormikToggle";
+
+export const Checkbox = ToggleFactory(SemanticCheckbox);
+Checkbox.displayName = "FormikCheckbox";
