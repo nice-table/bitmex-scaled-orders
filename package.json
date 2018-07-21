@@ -1,6 +1,6 @@
 {
   "name": "bmex-orderer",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "dependencies": {
     "@nice-table/bitmex-realtime-api": "0.3.2",
@@ -37,11 +37,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "startup": "concurrently \"npm:proxy\" \"npm:start\"",
+    "startup": "concurrently --allow-restart \"npm:proxy\" \"npm:start\"",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "proxy": "nodemon --watch src/config/index.js backend/proxy.js",
+    "proxy": "node backend/proxy.js",
+    "proxy:dev": "nodemon --watch src/config/index.js backend/proxy.js",
     "postinstall": "node postinstall.js"
   },
   "devDependencies": {

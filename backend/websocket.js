@@ -34,13 +34,17 @@ wss.on("connection", function connection(ws, req) {
     ? urlParsed.query.symbols.split(",")
     : [];
 
-  ws.send(JSON.stringify({ source: "local", message: "Connected to proxy" }));
-
   const client = new BitMEXClient({
     testnet: String(urlParsed.query.testnet).toLowerCase() === "true",
     apiKeyID: urlParsed.query.apiKeyID,
     apiKeySecret: urlParsed.query.apiKeySecret,
     maxTableLen: config.maxTableLen
+  });
+
+  client.on("open", function(message) {
+    ws.send(
+      JSON.stringify({ source: "local", message: "Connected to Bitmex" })
+    );
   });
 
   ws.on("close", () => {
@@ -49,11 +53,21 @@ wss.on("connection", function connection(ws, req) {
 
   client.on("error", function(error) {
     console.log("Caught Websocket error:", error);
+    ws.send(JSON.stringify({ source: "local", error: true, message: error }));
   });
 
   client.on("end", function() {
     console.log(
       "Client closed due to unrecoverable WebSocket error. Please check errors above."
+    );
+    ws.send(
+      JSON.stringify({
+        source: "local",
+        error: true,
+        errorCode: "BITMEX_CLIENT_SOCKET_ERROR",
+        message:
+          "Client closed due to unrecoverable WebSocket error. Please check errors above."
+      })
     );
   });
 

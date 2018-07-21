@@ -6,6 +6,7 @@ import sockette from "sockette";
 import produce from "immer";
 import { websocketPort } from "config";
 import queryString from "qs";
+import { toast } from "react-toastify";
 
 const intialData = {
   order: {},
@@ -80,17 +81,21 @@ class DataProvider extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     // API keys have changed, so we have to close and reconnect to websocket API
     if (this.props.apiContext !== prevProps.apiContext) {
-      this.ws.close();
-
-      // Reset state of data in case we're switching from testnet to prod or vice versa
-      this.setState(
-        produce(draft => {
-          draft.bitmex.data = intialData;
-        })
-      );
-
-      this.connectToToWebocketApi();
+      this.reconnectToWebsocket();
     }
+  }
+
+  reconnectToWebsocket() {
+    this.closeWebsocketConnection();
+
+    // Reset state of data in case we're switching from testnet to prod or vice versa
+    this.setState(
+      produce(draft => {
+        draft.bitmex.data = intialData;
+      })
+    );
+
+    this.connectToToWebocketApi();
   }
 
   connectToToWebocketApi() {
@@ -125,12 +130,33 @@ class DataProvider extends React.Component {
             })
           );
         }
-      }
+
+        if (message.source === "local") {
+          // Reconnect if websocket connection to bitmex terminates
+          if (
+            message.error === true &&
+            message.errorCode === "BITMEX_CLIENT_SOCKET_ERROR"
+          ) {
+            toast.info(
+              "Connection to Bitmex was terminated. Will attempt to reconnect."
+            );
+
+            return this.reconnectToWebsocket();
+          }
+
+          toast.info(message.message);
+        }
+      },
+      onerror: e => toast.error(e)
     });
   }
 
-  componentWillUnmount() {
+  closeWebsocketConnection() {
     this.ws.close();
+  }
+
+  componentWillUnmount() {
+    this.closeWebsocketConnection();
   }
 
   changeCurrentInstrument = newCurrentInstrument => {
