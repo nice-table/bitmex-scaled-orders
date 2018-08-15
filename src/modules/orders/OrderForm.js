@@ -9,17 +9,26 @@ import { RadioButton, RadioButtonGroup } from "form/Radio";
 import { Toggle } from "form/Toggle";
 import { TextInput } from "form/TextInput";
 import { Flex, Box } from "grid-styled";
+import { Persist } from "form/formik-persist";
+import ReactTooltip from "react-tooltip";
+
+import { DataContext } from "modules/data";
 import { generateOrders } from "./scaledOrderGenerator";
 import { ORDER_DISTRIBUTIONS } from "./constants";
-import { DataContext } from "modules/data";
-import Persist from "form/formik-persist";
-import ReactTooltip from "react-tooltip";
 import { OrderPreview } from "./OrderPreview";
+import { roundToTickSize } from "./index";
+
+const formatOrderPrice = (tickSize, price) => {
+  const rounded = roundToTickSize(tickSize, price);
+
+  return rounded;
+};
 
 class OrderForm extends React.PureComponent {
   static propTypes = {
     createOrders: PropTypes.func.isRequired,
-    currentInstrument: PropTypes.string.isRequired
+    currentInstrument: PropTypes.string.isRequired,
+    instrumentData: PropTypes.object.isRequired
   };
 
   state = { open: false, isRetrying: false };
@@ -33,7 +42,10 @@ class OrderForm extends React.PureComponent {
   setIsRetrying = isRetrying => this.setState({ isRetrying });
 
   renderPreview(values) {
-    let orders = generateOrders(values);
+    let orders = generateOrders({
+      ...values,
+      tickSize: this.props.instrumentData.tickSize
+    });
 
     // An error
     if (!_.isArray(orders)) {
@@ -48,14 +60,33 @@ class OrderForm extends React.PureComponent {
     );
   }
 
+  calculateAveragePrice(values) {
+    const orders = generateOrders({
+      ...values,
+      tickSize: this.props.instrumentData.tickSize
+    });
+
+    if (!_.isArray(orders)) {
+      return null;
+    }
+
+    return _.sum(orders.map(x => x.price * x.amount)) / values.amount;
+  }
+
   render() {
+    const { instrumentData } = this.props;
+
     return (
       <Formik
+        key={this.props.currentInstrument}
         initialValues={{
-          amount: 10000,
+          amount: 10,
           orderCount: 5,
-          priceLower: 8200,
-          priceUpper: 8300,
+          priceLower: instrumentData.lastPrice,
+          priceUpper: roundToTickSize(
+            instrumentData.tickSize,
+            instrumentData.lastPrice * 1.01
+          ),
           distribution: "flat",
           postOnly: false,
           reduceOnly: false,
@@ -63,7 +94,10 @@ class OrderForm extends React.PureComponent {
         }}
         isInitialValid
         onSubmit={(values, actions) => {
-          const orders = generateOrders(values);
+          const orders = generateOrders({
+            ...values,
+            tickSize: this.props.instrumentData.tickSize
+          });
           const execInst = [];
 
           /*
@@ -124,7 +158,7 @@ class OrderForm extends React.PureComponent {
             this.setIsRetrying(false);
           });
         }}
-        validationSchema={props =>
+        validationSchema={() =>
           Yup.object().shape({
             postOnly: Yup.boolean().label("Post-Only"),
             reduceOnly: Yup.boolean().label("Reduce-Only"),
@@ -146,12 +180,10 @@ class OrderForm extends React.PureComponent {
               .required(),
             priceLower: Yup.number()
               .label("Price lower")
-              .integer()
               .required()
               .positive(),
             priceUpper: Yup.number()
               .label("Price upper")
-              .integer()
               .required()
               .positive()
               .moreThan(Yup.ref("priceLower"))
@@ -164,14 +196,15 @@ class OrderForm extends React.PureComponent {
           setFieldValue,
           submitForm,
           isSubmitting,
-          isValid
+          isValid,
+          validateForm
         }) => (
           <React.Fragment>
             <Form>
               <Flex mb={2} flexWrap="wrap">
                 <Box pr={2} width={[1 / 2]}>
                   <Field
-                    label="Quantity USD"
+                    label="Quantity Contracts"
                     name="amount"
                     type="number"
                     min={2}
@@ -182,12 +215,18 @@ class OrderForm extends React.PureComponent {
                     <b>
                       Order value:{" "}
                       <DataContext.Consumer>
-                        {data =>
-                          data.orderValueXBT(values.amount) &&
-                          `${numeral(data.orderValueXBT(values.amount)).format(
-                            "0,0.0000"
-                          )} XBT`
-                        }
+                        {data => {
+                          const averagePrice = this.calculateAveragePrice(
+                            values
+                          );
+
+                          return (
+                            averagePrice &&
+                            `${numeral(
+                              data.orderValueXBT(averagePrice, values.amount)
+                            ).format("0,0.0000")} XBT`
+                          );
+                        }}
                       </DataContext.Consumer>{" "}
                     </b>
                   </div>
@@ -202,7 +241,7 @@ class OrderForm extends React.PureComponent {
                   />
                 </Box>
 
-                <Box w={1}>
+                <Box width={1}>
                   <Divider />
                 </Box>
 
@@ -211,7 +250,17 @@ class OrderForm extends React.PureComponent {
                     label="Price upper"
                     name="priceUpper"
                     type="number"
+                    step={instrumentData.tickSize}
                     component={TextInput}
+                    onBlur={(e, field) =>
+                      setFieldValue(
+                        "priceUpper",
+                        formatOrderPrice(
+                          instrumentData.tickSize,
+                          e.target.value
+                        )
+                      )
+                    }
                   />
                 </Box>
                 <Box width={[1 / 2]}>
@@ -219,7 +268,17 @@ class OrderForm extends React.PureComponent {
                     label="Price lower"
                     name="priceLower"
                     type="number"
+                    step={instrumentData.tickSize}
                     component={TextInput}
+                    onBlur={(e, field) =>
+                      setFieldValue(
+                        "priceLower",
+                        formatOrderPrice(
+                          instrumentData.tickSize,
+                          e.target.value
+                        )
+                      )
+                    }
                   />
                 </Box>
               </Flex>
@@ -248,7 +307,7 @@ class OrderForm extends React.PureComponent {
                 <Box width={[1, 1 / 2]}>
                   <Header as="h4">Order execution</Header>
                   <Flex flexWrap="wrap">
-                    <Box w={1} mb={2}>
+                    <Box width={1} mb={2}>
                       <Field
                         data-tip
                         data-for="post-only-message"
@@ -270,7 +329,7 @@ class OrderForm extends React.PureComponent {
                       </ReactTooltip>
                     </Box>
 
-                    <Box w={1} mb={2}>
+                    <Box width={1} mb={2}>
                       <Field
                         data-tip
                         data-for="reduce-only-message"
@@ -291,7 +350,7 @@ class OrderForm extends React.PureComponent {
                       </ReactTooltip>
                     </Box>
 
-                    <Box mb={2} w={1}>
+                    <Box mb={2} width={1}>
                       <Field
                         data-tip
                         data-for="hidden-message"
@@ -310,7 +369,7 @@ class OrderForm extends React.PureComponent {
                       </ReactTooltip>
                     </Box>
 
-                    <Box w={1}>
+                    <Box width={1}>
                       <Field
                         data-tip
                         data-for="overload-message"
@@ -378,7 +437,10 @@ class OrderForm extends React.PureComponent {
                 </div>
               </Flex>
 
-              <Persist name="order-form" />
+              <Persist
+                debounce={0}
+                name={`order-form-v2.${this.props.currentInstrument}`}
+              />
             </Form>
 
             {isValid && this.renderPreview(values)}

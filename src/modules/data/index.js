@@ -1,2 +1,2 @@
 export { DataProvider, DataContext } from "./DataProvider";
-export { FetchXBTFuturesInstruments } from "./fetch";
+export { FetchInstruments } from "./fetch";

@@ -13,6 +13,8 @@
 const WebSocket = require("ws");
 const BitMEXClient = require("@nice-table/bitmex-realtime-api");
 const config = require("../src/config");
+const streams = ["instrument"];
+const streamsWildcard = ["order", "position"];
 
 const wss = new WebSocket.Server({ port: config.websocketPort });
 console.log("Started webocket server on port", config.websocketPort);
@@ -71,8 +73,25 @@ wss.on("connection", function connection(ws, req) {
     );
   });
 
+  streamsWildcard.forEach(function(streamName) {
+    client.addStream("*", streamName, function(data, symbol, tableName) {
+      if (!isAlive) {
+        return;
+      }
+
+      ws.send(
+        JSON.stringify({
+          source: "bitmex",
+          data,
+          symbol,
+          tableName
+        })
+      );
+    });
+  });
+
   symbols.forEach(function(symbol) {
-    config.streams.forEach(function(streamName) {
+    streams.forEach(function(streamName) {
       client.addStream(symbol, streamName, function(data, symbol, tableName) {
         if (!isAlive) {
           return;

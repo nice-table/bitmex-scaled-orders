@@ -3,6 +3,7 @@ import ReactTable from "components/ReactTable";
 import numeral from "numeral";
 import { pure } from "recompose";
 import { Button, Icon } from "semantic-ui-react";
+import { FormatPrice } from "modules/ui";
 
 const canCancel = order =>
   order.ordStatus !== "Canceled" && order.ordStatus !== "Filled";
@@ -84,7 +85,12 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
             prefix = ">= ";
           }
 
-          return `${prefix}${value}`;
+          return (
+            <React.Fragment>
+              {prefix}
+              <FormatPrice price={value} symbol={original.symbol} />
+            </React.Fragment>
+          );
         }
       },
       {

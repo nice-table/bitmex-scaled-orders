@@ -5,7 +5,7 @@ import { Input, TextArea } from "semantic-ui-react";
 const TextInput = ({
   className,
   field,
-  form: { touched, errors },
+  form: { setFieldTouched, touched, errors },
   type,
   label,
   multiLine,
@@ -14,7 +14,17 @@ const TextInput = ({
   <div className={className}>
     <label>
       {!multiLine && (
-        <Input fluid label={label} type={type} {...field} {...props} />
+        <Input
+          fluid
+          label={label}
+          type={type}
+          {...field}
+          {...props}
+          onBlur={arg => {
+            setFieldTouched(field.name, true);
+            field.onBlur(arg.currentTarget.value);
+          }}
+        />
       )}
 
       {multiLine && <TextArea {...field} {...props} />}

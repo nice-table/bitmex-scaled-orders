@@ -5,8 +5,9 @@ import { injectGlobal } from "styled-components";
 import { ToastContainer } from "react-toastify";
 import { Loader } from "semantic-ui-react";
 import Dashboard from "containers/Dashboard";
-import { DataProvider, FetchXBTFuturesInstruments } from "modules/data";
+import { DataProvider, FetchInstruments } from "modules/data";
 import { ApiKeyProvider, ApiContextConsumer, ApiKeyForm } from "modules/api";
+import { UISettingsProvider } from "modules/ui";
 import { Header, Modal } from "semantic-ui-react";
 import { Icon } from "semantic-ui-react";
 
@@ -50,59 +51,60 @@ class App extends Component {
 
   renderApp() {
     return (
-      <FetchXBTFuturesInstruments>
+      <FetchInstruments>
         {({ fetching, data }) =>
           fetching || !data ? (
             <Loader active>Loading...</Loader>
           ) : (
-            <ApiContextConsumer>
-              {apiContext => (
-                <React.Fragment>
-                  <DataProvider
-                    apiContext={apiContext}
-                    instrumentsSymbols={["XBTUSD"].concat(
-                      data.map(x => x.symbol)
-                    )}
-                  >
-                    <Container>
-                      <Helmet>
-                        <title>
-                          {apiContext.testnet ? "TESTNET" : "LIVE"} | Bitmex
-                          scaled orders
-                        </title>
-                      </Helmet>
+            <UISettingsProvider instruments={data}>
+              <ApiContextConsumer>
+                {apiContext => (
+                  <React.Fragment>
+                    <DataProvider
+                      apiContext={apiContext}
+                      instruments={data}
+                      instrumentsSymbols={[].concat(data.map(x => x.symbol))}
+                    >
+                      <Container>
+                        <Helmet>
+                          <title>
+                            {apiContext.testnet ? "TESTNET" : "LIVE"} | Bitmex
+                            scaled orders
+                          </title>
+                        </Helmet>
 
-                      <Dashboard />
+                        <Dashboard instruments={data} />
 
-                      <ToastContainer autoClose={3000} />
-                    </Container>
-                  </DataProvider>
+                        <ToastContainer autoClose={3000} />
+                      </Container>
+                    </DataProvider>
 
-                  <SettingsModalToggler
-                    aria-label="Open settings"
-                    title="Open settings"
-                    onClick={() => this.onSetOpen(true)}
-                  >
-                    <Icon name="setting" size="big" />
-                  </SettingsModalToggler>
+                    <SettingsModalToggler
+                      aria-label="Open settings"
+                      title="Open settings"
+                      onClick={() => this.onSetOpen(true)}
+                    >
+                      <Icon name="setting" size="big" />
+                    </SettingsModalToggler>
 
-                  <Modal
-                    onOpen={() => this.onSetOpen(true)}
-                    open={this.state.isSettingsModalOpen}
-                    onClose={() => this.onSetOpen(false)}
-                    size="small"
-                  >
-                    <Modal.Content>
-                      <Header as="h2">Settings</Header>
-                      <ApiKeyForm afterSubmit={() => this.onSetOpen(false)} />
-                    </Modal.Content>
-                  </Modal>
-                </React.Fragment>
-              )}
-            </ApiContextConsumer>
+                    <Modal
+                      onOpen={() => this.onSetOpen(true)}
+                      open={this.state.isSettingsModalOpen}
+                      onClose={() => this.onSetOpen(false)}
+                      size="small"
+                    >
+                      <Modal.Content>
+                        <Header as="h2">Settings</Header>
+                        <ApiKeyForm afterSubmit={() => this.onSetOpen(false)} />
+                      </Modal.Content>
+                    </Modal>
+                  </React.Fragment>
+                )}
+              </ApiContextConsumer>
+            </UISettingsProvider>
           )
         }
-      </FetchXBTFuturesInstruments>
+      </FetchInstruments>
     );
   }
 

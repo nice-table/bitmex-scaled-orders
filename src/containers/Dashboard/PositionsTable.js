@@ -3,6 +3,7 @@ import styled from "styled-components";
 import ReactTable from "components/ReactTable";
 import numeral from "numeral";
 import { pure } from "recompose";
+import { FormatPrice } from "modules/ui";
 
 const PositionStatus = styled.span`
   ${props => props.pnl > 0 && "color: green"};
@@ -45,12 +46,16 @@ export const PositionsTable = pure(({ positions }) => (
       {
         Header: "Entry price",
         accessor: "avgEntryPrice",
-        Cell: ({ value }) => numeral(value).format("0,0")
+        Cell: ({ value, original }) => (
+          <FormatPrice price={value} symbol={original.symbol} />
+        )
       },
       {
         Header: "Liq. price",
         accessor: "liquidationPrice",
-        Cell: ({ value }) => numeral(value).format("0,0")
+        Cell: ({ value, original }) => (
+          <FormatPrice price={value} symbol={original.symbol} />
+        )
       },
       {
         Header: "Unrealised PNL",

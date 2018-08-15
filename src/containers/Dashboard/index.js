@@ -1,15 +1,22 @@
 import React from "react";
 import { Flex, Box } from "grid-styled";
-import { Header } from "semantic-ui-react";
 import Composer from "react-composer";
 import { toast } from "react-toastify";
+import { Header, Modal } from "semantic-ui-react";
 import { DataContext } from "modules/data";
+import { UISettingsContext, SelectInstrumentsForm } from "modules/ui";
 import { OrderForm, CreateBulkBtcOrders, CancelOrder } from "modules/orders";
 import { OrdersTable } from "./OrdersTable";
 import { PositionsTable } from "./PositionsTable";
 import { InstrumentTabs } from "./InstrumentTabs";
 
 class Dashboard extends React.Component {
+  state = {
+    isSettingsModalOpen: false
+  };
+
+  onSetOpen = isOpen => this.setState({ isSettingsModalOpen: isOpen });
+
   render() {
     return (
       <Composer
@@ -34,26 +41,42 @@ class Dashboard extends React.Component {
           <React.Fragment>
             <Header as="h1">Bitmex scaled orders</Header>
 
-            <DataContext.Consumer>
+            <UISettingsContext.Consumer>
               {data => (
                 <InstrumentTabs
-                  instruments={data.getSymbols()}
-                  currentInstrument={data.getCurrentInstrument()}
-                  changeCurrentInstrument={data.changeCurrentInstrument}
+                  instruments={data.getSelectedInstruments()}
+                  currentInstrument={data.currentInstrument}
+                  changeCurrentInstrument={data.setCurrentInstrument}
+                  onChangeActiveInstruments={() => this.onSetOpen(true)}
                 />
               )}
-            </DataContext.Consumer>
+            </UISettingsContext.Consumer>
+
+            <Modal
+              onOpen={() => this.onSetOpen(true)}
+              open={this.state.isSettingsModalOpen}
+              onClose={() => this.onSetOpen(false)}
+              size="small"
+            >
+              <Modal.Content>
+                <Header as="h2">Active instruments</Header>
+                <SelectInstrumentsForm
+                  afterSubmit={() => this.onSetOpen(false)}
+                />
+              </Modal.Content>
+            </Modal>
 
             <Flex flexWrap="wrap">
               <Box width={[1, null, 1 / 2]} mb={4} pr={[0, null, 4]}>
-                <DataContext.Consumer>
+                <UISettingsContext.Consumer>
                   {data => (
                     <OrderForm
-                      currentInstrument={data.getCurrentInstrument()}
+                      instrumentData={data.getCurrentInstrumentData()}
+                      currentInstrument={data.currentInstrument}
                       createOrders={createBulkOrders.doFetch}
                     />
                   )}
-                </DataContext.Consumer>
+                </UISettingsContext.Consumer>
               </Box>
 
               <Box width={[1, null, 1 / 2]}>

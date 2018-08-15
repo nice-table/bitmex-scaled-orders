@@ -57,7 +57,7 @@ class ApiKeyForm extends React.Component {
 
             {values.testnet === false && (
               <Flex mb={2} flexWrap="wrap">
-                <Box w={1} mb={2}>
+                <Box width={1} mb={2}>
                   <Field
                     name="productionApiKeyID"
                     component={TextInput}
@@ -65,7 +65,7 @@ class ApiKeyForm extends React.Component {
                     label="Api key ID"
                   />
                 </Box>
-                <Box w={1}>
+                <Box width={1}>
                   <Field
                     name="productionApiKeySecret"
                     component={TextInput}
@@ -78,7 +78,7 @@ class ApiKeyForm extends React.Component {
 
             {values.testnet === true && (
               <Flex mb={2} flexWrap="wrap">
-                <Box mb={2} w={1}>
+                <Box mb={2} width={1}>
                   <Field
                     name="testnetApiKeyID"
                     component={TextInput}
@@ -86,7 +86,7 @@ class ApiKeyForm extends React.Component {
                     label="Testnet Api key ID"
                   />
                 </Box>
-                <Box w={1}>
+                <Box width={1}>
                   <Field
                     name="testnetApiKeySecret"
                     component={TextInput}

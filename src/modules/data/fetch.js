@@ -1,9 +1,6 @@
 import React from "react";
 import { BitmexFetch } from "modules/api";
 
-export const FetchXBTFuturesInstruments = props => (
-  <BitmexFetch
-    url={`instrument?filter={"rootSymbol": "XBT", "state": "Open", "typ": "FFCCSX"}`}
-    {...props}
-  />
+export const FetchInstruments = props => (
+  <BitmexFetch skipAuth url={`instrument/active`} {...props} />
 );

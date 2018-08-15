@@ -2,13 +2,16 @@ import _ from "lodash";
 import { generateOrders } from "../scaledOrderGenerator";
 import { ORDER_DISTRIBUTIONS } from "../constants";
 
+const tickSize = 0.5;
+
 it("should fail when upper price is less than lower price", () => {
   const order = {
     amount: 100,
     orderCount: 5,
     priceLower: 11,
     priceUpper: 10,
-    distribution: ORDER_DISTRIBUTIONS.FLAT.key
+    distribution: ORDER_DISTRIBUTIONS.FLAT.key,
+    tickSize
   };
 
   expect(generateOrders(order)).toBeInstanceOf(Error);
@@ -20,7 +23,8 @@ it("should fail when amount is less than two", () => {
     orderCount: 5,
     priceLower: 100,
     priceUpper: 200,
-    distribution: ORDER_DISTRIBUTIONS.FLAT.key
+    distribution: ORDER_DISTRIBUTIONS.FLAT.key,
+    tickSize
   };
 
   expect(generateOrders(order)).toBeInstanceOf(Error);
@@ -32,7 +36,8 @@ it("should fail when number of orders is less than two", () => {
     orderCount: 1,
     priceLower: 100,
     priceUpper: 200,
-    distribution: ORDER_DISTRIBUTIONS.FLAT.key
+    distribution: ORDER_DISTRIBUTIONS.FLAT.key,
+    tickSize
   };
 
   expect(generateOrders(order)).toBeInstanceOf(Error);
@@ -44,7 +49,8 @@ it("should fail when number of orders is more than 200", () => {
     orderCount: 201,
     priceLower: 100,
     priceUpper: 200,
-    distribution: ORDER_DISTRIBUTIONS.FLAT.key
+    distribution: ORDER_DISTRIBUTIONS.FLAT.key,
+    tickSize
   };
 
   expect(generateOrders(order)).toBeInstanceOf(Error);
@@ -56,7 +62,8 @@ describe("flat distribution", () => {
     orderCount: 5,
     priceLower: 100,
     priceUpper: 200,
-    distribution: ORDER_DISTRIBUTIONS.FLAT.key
+    distribution: ORDER_DISTRIBUTIONS.FLAT.key,
+    tickSize
   });
 
   it("should return the expected number of orders", () => {
@@ -88,7 +95,8 @@ describe("decreasing distribution", () => {
     orderCount: 5,
     priceLower: 100,
     priceUpper: 200,
-    distribution: ORDER_DISTRIBUTIONS.DECREASING.key
+    distribution: ORDER_DISTRIBUTIONS.DECREASING.key,
+    tickSize
   });
 
   it("should return the expected number of orders", () => {
@@ -134,7 +142,8 @@ describe("increasing distribution", () => {
     orderCount: 5,
     priceLower: 100,
     priceUpper: 200,
-    distribution: ORDER_DISTRIBUTIONS.INCREASING.key
+    distribution: ORDER_DISTRIBUTIONS.INCREASING.key,
+    tickSize
   });
 
   it("should return the expected number of orders", () => {

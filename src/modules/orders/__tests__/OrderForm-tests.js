@@ -10,6 +10,10 @@ it("renders without crashing", () => {
         new Promise(resolve => resolve({ respose: { status: 200 } }))
       }
       currentInstrument="XBTUSD"
+      instrumentData={{
+        tickSize: 0.5,
+        lastPrice: 6000
+      }}
     />,
     div
   );

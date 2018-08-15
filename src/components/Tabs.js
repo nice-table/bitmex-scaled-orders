@@ -4,8 +4,9 @@ import { space } from "styled-system";
 export const Tab = styled.li`
   background: rgba(0, 0, 0, 0.05);
   color: #333;
-  display: inline-block;
   padding: 10px;
+  border-top: 3px solid transparent;
+  transition: background 350ms;
   ${space};
 
   ${props =>
@@ -20,5 +21,7 @@ export const Tab = styled.li`
 export const Tabs = styled.ul`
   margin: 0;
   padding: 0;
+  display: flex;
+  list-style: none;
   ${space};
 `;

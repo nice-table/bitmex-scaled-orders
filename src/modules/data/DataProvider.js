@@ -7,6 +7,8 @@ import produce from "immer";
 import { websocketPort } from "config";
 import queryString from "qs";
 import { toast } from "react-toastify";
+import { UISettingsContext } from "modules/ui";
+import isEqual from "react-fast-compare";
 
 const intialData = {
   order: {},
@@ -15,16 +17,11 @@ const intialData = {
 };
 
 const DataContext = React.createContext({
-  currentInstrument: null,
-  symbols: [],
+  instruments: [],
   data: intialData,
-  getOrders: () => [],
   getAllOrders: () => [],
-  getPositions: () => [],
   getAllPositions: () => [],
   orderValueXBT: () => null,
-  getSymbols: () => [],
-  changeCurrentInstrument: () => null,
   getCurrentInstrument: () => null,
   getLastPrice: () => null
 });
@@ -43,19 +40,17 @@ const positionsSelector = createSelector(
 
 class DataProvider extends React.Component {
   static propTypes = {
-    instrumentsSymbols: PropTypes.array.isRequired,
+    currentInstrument: PropTypes.string.isRequired,
+    selectedInstruments: PropTypes.array.isRequired,
+    instruments: PropTypes.array.isRequired,
     apiContext: PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
 
-    const { instrumentsSymbols } = props;
-
     this.state = {
       bitmex: {
-        currentInstrument: _.first(instrumentsSymbols),
-        symbols: instrumentsSymbols,
         data: {
           order: {},
           instrument: {},
@@ -63,11 +58,9 @@ class DataProvider extends React.Component {
         },
         getOrders: this.getOrders,
         getAllOrders: this.getAllOrders,
-        getPositions: this.getPositions,
         getAllPositions: this.getAllPositions,
         orderValueXBT: this.orderValueXBT,
-        getSymbols: this.getSymbols,
-        changeCurrentInstrument: this.changeCurrentInstrument,
+        getInstrumentData: this.getInstrumentData,
         getCurrentInstrument: this.getCurrentInstrument,
         getLastPrice: this.getLastPrice
       }
@@ -81,7 +74,13 @@ class DataProvider extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     // API keys have changed, so we have to close and reconnect to websocket API
     if (this.props.apiContext !== prevProps.apiContext) {
-      this.reconnectToWebsocket();
+      return this.reconnectToWebsocket();
+    }
+
+    if (
+      !isEqual(this.props.selectedInstruments, prevProps.selectedInstruments)
+    ) {
+      return this.reconnectToWebsocket();
     }
   }
 
@@ -99,12 +98,12 @@ class DataProvider extends React.Component {
   }
 
   connectToToWebocketApi() {
-    const { instrumentsSymbols, apiContext } = this.props;
+    const { selectedInstruments, apiContext } = this.props;
 
     const apikeys = apiContext.getActiveKeys();
 
     const queries = queryString.stringify({
-      symbols: instrumentsSymbols.join(","),
+      symbols: selectedInstruments.join(","),
       testnet: apiContext.testnet,
       apiKeyID: apikeys.apiKeyID,
       apiKeySecret: apikeys.apiKeySecret
@@ -159,20 +158,14 @@ class DataProvider extends React.Component {
     this.closeWebsocketConnection();
   }
 
-  changeCurrentInstrument = newCurrentInstrument => {
-    this.setState(
-      produce(draft => {
-        draft.bitmex.currentInstrument = newCurrentInstrument;
-      })
+  getInstrumentData = () => {
+    return this.props.instruments.find(
+      x => x.symbol === this.getCurrentInstrument()
     );
   };
 
   getCurrentInstrument = () => {
-    return this.state.bitmex.currentInstrument;
-  };
-
-  getSymbols = () => {
-    return this.props.instrumentsSymbols;
+    return this.props.currentInstrument;
   };
 
   // Gets table of the currently active instrument
@@ -182,24 +175,8 @@ class DataProvider extends React.Component {
     return _.get(this.state.bitmex.data, [tableName, symbol]);
   }
 
-  getOrders = () => {
-    if (this.getTable("order")) {
-      return this.getTable("order");
-    }
-
-    return [];
-  };
-
   getAllOrders = () => {
     return ordersSelector(this.state);
-  };
-
-  getPositions = () => {
-    if (this.getTable("position")) {
-      return this.getTable("position");
-    }
-
-    return [];
   };
 
   getAllPositions = () => {
@@ -224,7 +201,7 @@ class DataProvider extends React.Component {
     return instrument.lastPrice;
   };
 
-  orderValueXBT = amountUSD => {
+  orderValueXBT = (price, amountUSD) => {
     if (this.getTable("instrument")) {
       const instrument = _.last(this.getTable("instrument"));
 
@@ -232,7 +209,18 @@ class DataProvider extends React.Component {
         return null;
       }
 
-      return amountUSD / instrument.lastPrice;
+      let value = 0;
+
+      if (instrument.multiplier > 0) {
+        value = Math.abs(instrument.multiplier * price);
+      } else {
+        value = Math.abs(instrument.multiplier / price);
+      }
+
+      const valueSatoshis = _.round(amountUSD * value);
+
+      // Convert from satoshis to BTC
+      return valueSatoshis / 10 ** 8;
     }
 
     return null;
@@ -247,4 +235,16 @@ class DataProvider extends React.Component {
   }
 }
 
-export { DataProvider, DataContext };
+const DataProviderWrapper = props => (
+  <UISettingsContext.Consumer>
+    {data => (
+      <DataProvider
+        currentInstrument={data.currentInstrument}
+        selectedInstruments={data.selectedInstruments}
+        {...props}
+      />
+    )}
+  </UISettingsContext.Consumer>
+);
+
+export { DataProviderWrapper as DataProvider, DataContext };

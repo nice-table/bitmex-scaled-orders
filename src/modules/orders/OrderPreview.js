@@ -3,12 +3,18 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import ReactTable from "components/ReactTable";
 import numeral from "numeral";
+import isEqual from "react-fast-compare";
+import { FormatPrice } from "modules/ui";
 
 class OrderPreview extends React.Component {
   static propTypes = {
     orders: PropTypes.array.isRequired,
     orderAmount: PropTypes.number
   };
+
+  shouldComponentUpdate(nextProps) {
+    return !isEqual(this.props, nextProps);
+  }
 
   render() {
     const { orders, orderAmount } = this.props;
@@ -22,13 +28,13 @@ class OrderPreview extends React.Component {
           {
             Header: "Price",
             accessor: "price",
-            Cell: ({ value }) => numeral(value).format("0,0"),
+            Cell: ({ value }) => <FormatPrice price={value} />,
             Footer: () => (
               <div>
                 Avg. price:{" "}
                 {numeral(
                   _.sum(orders.map(x => x.price * x.amount)) / orderAmount
-                ).format("0,0")}
+                ).format("0,0.0")}
               </div>
             )
           },

@@ -2,6 +2,7 @@
 
 import _ from "lodash";
 import { ORDER_DISTRIBUTIONS } from "./constants";
+import { roundToTickSize } from "./index";
 
 // Get distribution weights
 const getAmountDistribution = (distribution, orderCount) => {
@@ -71,7 +72,8 @@ const generateOrders = ({
   orderCount,
   priceLower,
   priceUpper,
-  distribution
+  distribution,
+  tickSize
 }) => {
   if (amount < 2) {
     return new Error("Amount must be greater than or equal to 2");
@@ -102,7 +104,7 @@ const generateOrders = ({
 
       return priceLower + stepsPerPricePoint * i;
     })
-    .map(price => _.round(price, 0));
+    .map(price => roundToTickSize(tickSize, price));
 
   let minPrice = Infinity;
   let maxPrice = -Infinity;

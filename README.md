@@ -2,7 +2,7 @@
 
 _A tool for creating scaled orders / bulk orders on Bitmex_
 
-![Preview](https://i.imgur.com/dWgDAeg.png)
+![Preview](https://i.imgur.com/kfsQzLh.png)
 
 Video demo: https://streamable.com/d3qr4
 
@@ -25,7 +25,7 @@ Video demo: https://streamable.com/d3qr4
   - Number of orders
   - Upper price and lower price
   - Spread amount evenly, increasingly or decreasingly
-- Supports XBTUSD and XBT futures instruments
+- Supports all Bitmex instruments
 - View current positions
 - View and cancel current orders
 - Retry on overload until successful
