@@ -1,6 +1,6 @@
 {
   "name": "bmex-orderer",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "dependencies": {
     "@nice-table/bitmex-realtime-api": "0.3.2",
