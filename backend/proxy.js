@@ -1,2 +1,2 @@
 require("./restProxy");
-require("./webSocket");
+require("./websocket");
