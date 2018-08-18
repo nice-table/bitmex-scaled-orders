@@ -36,12 +36,16 @@ class PersistImpl extends React.Component {
   };
 
   saveForm = _.debounce(data => {
-    window.localStorage.setItem(this.props.name, JSON.stringify(data));
+    if (data) {
+      window.localStorage.setItem(this.props.name, JSON.stringify(data));
+    }
   }, this.props.debounce);
 
   componentDidUpdate(prevProps) {
-    if (!isEqual(prevProps.formik, this.context.formik)) {
-      this.saveForm(prevProps.formik);
+    if (!isEqual(this.props.formik.values, prevProps.formik.values)) {
+      if (this.props.formik.isValid) {
+        this.saveForm(this.props.formik);
+      }
     }
   }
 
