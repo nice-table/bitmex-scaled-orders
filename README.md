@@ -49,6 +49,14 @@ When `npm install` has finished, we are ready to start the app. Run this in a te
 
 App should open in your browser automatically and render when ready.
 
+## Upgrading
+
+Upgrading should be as simple as overwriting the source code, or pulling latest, followed by a `npm install` in terminal. App is then ready and can be started with `npm run startup`.
+
+## Development
+
+When doing dev work I run `npm start` in one terminal, and `npm run proxy:dev` in another.
+
 ## Tests
 
 Tests can be run in a terminal:
