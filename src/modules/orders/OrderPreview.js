@@ -32,9 +32,11 @@ class OrderPreview extends React.Component {
             Footer: () => (
               <div>
                 Avg. price:{" "}
-                {numeral(
-                  _.sum(orders.map(x => x.price * x.amount)) / orderAmount
-                ).format("0,0.0")}
+                <FormatPrice
+                  price={
+                    _.sum(orders.map(x => x.price * x.amount)) / orderAmount
+                  }
+                />
               </div>
             )
           },
