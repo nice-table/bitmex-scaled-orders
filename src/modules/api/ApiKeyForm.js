@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Flex, Box } from "grid-styled";
+import { Flex, Box } from "@rebass/grid";
 import { Formik, Form, Field } from "formik";
 import { Toggle, Checkbox } from "form/Toggle";
 import { TextInput } from "form/TextInput";
@@ -127,7 +127,7 @@ const ApiKeyFormWrapper = props => (
         }}
         onSubmit={values => {
           data.setApiKeys(values);
-
+          props.onKeySubmit();
           props.afterSubmit();
         }}
         {...props}
@@ -137,7 +137,8 @@ const ApiKeyFormWrapper = props => (
 );
 
 ApiKeyFormWrapper.propTypes = {
-  afterSubmit: PropTypes.func
+  afterSubmit: PropTypes.func,
+  onKeySubmit: PropTypes.func
 };
 
 ApiKeyFormWrapper.defaultProps = {

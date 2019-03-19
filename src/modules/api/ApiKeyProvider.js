@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import _ from "lodash";
 
 const STORAGE_KEY = "bmex-api-context";
@@ -10,8 +10,12 @@ const ApiContext = React.createContext({
   testnetApiKeyID: null,
   testnetApiKeySecret: null,
   setApiKeys: () => null,
-  hasApiKeys: () => false
+  hasApiKeys: () => false,
+  getActiveKeys: () => null,
+  isValid: false
 });
+
+export const useApiContext = () => useContext(ApiContext);
 
 class ApiKeyProvider extends React.Component {
   constructor(props) {
@@ -29,9 +33,12 @@ class ApiKeyProvider extends React.Component {
       testnetApiKeySecret: storageData.testnetApiKeySecret,
       setApiKeys: this.setApiKeys,
       hasApiKeys: this.hasApiKeys,
-      getActiveKeys: this.getActiveKeys
+      getActiveKeys: this.getActiveKeys,
+      setKeysValid: this.setKeysValid
     };
   }
+
+  setKeysValid = isValid => this.setState({ isValid });
 
   setApiKeys = ({
     testnet,

@@ -146,7 +146,7 @@ class DataProvider extends React.Component {
           toast.info(message.message);
         }
       },
-      onerror: e => toast.error(e)
+      onerror: e => toast.error(e.message)
     });
   }
 

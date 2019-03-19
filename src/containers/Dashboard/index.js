@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Box } from "grid-styled";
+import { Flex, Box } from "@rebass/grid";
 import Composer from "react-composer";
 import { toast } from "react-toastify";
 import { Header, Modal } from "semantic-ui-react";

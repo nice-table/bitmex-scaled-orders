@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import { Flex, Box } from "grid-styled";
+import { Flex, Box } from "@rebass/grid";
 import { Formik, Form, Field } from "formik";
 import { Checkbox } from "form/Toggle";
 import { Button, Message } from "semantic-ui-react";

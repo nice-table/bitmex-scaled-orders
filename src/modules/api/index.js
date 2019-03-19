@@ -1,3 +1,9 @@
 export { BitmexFetch } from "./BitmexFetch";
-export { ApiKeyProvider, ApiContextConsumer } from "./ApiKeyProvider";
+export {
+  ApiKeyProvider,
+  useApiContext,
+  ApiContextConsumer
+} from "./ApiKeyProvider";
 export { ApiKeyForm } from "./ApiKeyForm";
+
+export { useApi } from "./useApi";

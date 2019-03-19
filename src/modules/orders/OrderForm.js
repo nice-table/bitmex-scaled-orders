@@ -8,7 +8,7 @@ import { Button, Header, Divider, Confirm } from "semantic-ui-react";
 import { RadioButton, RadioButtonGroup } from "form/Radio";
 import { Toggle } from "form/Toggle";
 import { TextInput } from "form/TextInput";
-import { Flex, Box } from "grid-styled";
+import { Flex, Box } from "@rebass/grid";
 import { Persist } from "form/formik-persist";
 import ReactTooltip from "react-tooltip";
 
