@@ -23,7 +23,7 @@ export default styled(ReactTable)`
 
     .rt-th.rt-th {
       border: 0;
-      color: #333;
+      color: ${props => props.theme.palette.text.primary};
       text-align: left;
       transition: background-color 150ms;
       backface-visibility: hidden;

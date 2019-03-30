@@ -2,8 +2,9 @@ import React from "react";
 import { Flex, Box } from "@rebass/grid";
 import Composer from "react-composer";
 import { toast } from "react-toastify";
-import { Header, Modal } from "semantic-ui-react";
+import { Header } from "components/Header";
 import { DataContext } from "modules/data";
+import { Dialog } from "components/Dialog";
 import { UISettingsContext, SelectInstrumentsForm } from "modules/ui";
 import { OrderForm, CreateBulkBtcOrders, CancelOrder } from "modules/orders";
 import { OrdersTable } from "./OrdersTable";
@@ -39,7 +40,9 @@ class Dashboard extends React.Component {
       >
         {([cancelOrder, createBulkOrders]) => (
           <React.Fragment>
-            <Header as="h1">Bitmex scaled orders</Header>
+            <Header as="h1" variant="h3" gutterBottom>
+              Bitmex scaled orders
+            </Header>
 
             <UISettingsContext.Consumer>
               {data => (
@@ -52,22 +55,19 @@ class Dashboard extends React.Component {
               )}
             </UISettingsContext.Consumer>
 
-            <Modal
-              onOpen={() => this.onSetOpen(true)}
+            <Dialog
               open={this.state.isSettingsModalOpen}
               onClose={() => this.onSetOpen(false)}
-              size="small"
-            >
-              <Modal.Content>
-                <Header as="h2">Active instruments</Header>
+              title="Active instruments"
+              content={() => (
                 <SelectInstrumentsForm
                   afterSubmit={() => this.onSetOpen(false)}
                 />
-              </Modal.Content>
-            </Modal>
+              )}
+            />
 
             <Flex flexWrap="wrap">
-              <Box width={[1, null, 1 / 2]} mb={4} pr={[0, null, 4]}>
+              <Box width={[1, null, 2 / 5, 1 / 3]} mb={4} pr={[0, null, 4]}>
                 <UISettingsContext.Consumer>
                   {data => (
                     <OrderForm
@@ -79,9 +79,12 @@ class Dashboard extends React.Component {
                 </UISettingsContext.Consumer>
               </Box>
 
-              <Box width={[1, null, 1 / 2]}>
+              <Box width={[1, null, 3 / 5, 2 / 3]}>
                 <div style={{ marginBottom: "15px" }}>
-                  <Header as="h3">Open positions</Header>{" "}
+                  <Header variant="h5" as="h3" gutterBottom>
+                    Open positions
+                  </Header>
+
                   <DataContext.Consumer>
                     {data => (
                       <PositionsTable positions={data.getAllPositions()} />
@@ -90,7 +93,10 @@ class Dashboard extends React.Component {
                 </div>
 
                 <div>
-                  <Header as="h3">Active orders</Header>
+                  <Header variant="h5" as="h3" gutterBottom>
+                    Active orders
+                  </Header>
+
                   <DataContext.Consumer>
                     {data => (
                       <OrdersTable

@@ -4,9 +4,10 @@ import PropTypes from "prop-types";
 import { Flex, Box } from "@rebass/grid";
 import { Formik, Form, Field } from "formik";
 import { Checkbox } from "form/Toggle";
-import { Button, Message } from "semantic-ui-react";
+import Button from "@material-ui/core/Button";
 import * as Yup from "yup";
 import { UISettingsContext } from "./UISettings";
+import FormLabel from "@material-ui/core/FormLabel";
 
 class SelectInstrumentsForm extends React.Component {
   render() {
@@ -34,20 +35,20 @@ class SelectInstrumentsForm extends React.Component {
         }
         render={({ values, errors, isSubmitting, isValid }) => (
           <Form>
-            {errors &&
-              errors.instruments && (
-                <Message negative>{errors.instruments}</Message>
-              )}
-            <Flex flexWrap="wrap">
+            {errors && errors.instruments && (
+              <FormLabel error>{errors.instruments}</FormLabel>
+            )}
+
+            <Flex flexWrap="wrap" mx={-2}>
               {_.map(instrumentsGroupedByRootSymbol, (symbols, rootSymbol) => (
-                <Box key={rootSymbol} width={1 / 2}>
+                <Box key={rootSymbol} px={2} width={1 / 2}>
                   <h3>{rootSymbol}</h3>
                   <Flex flexWrap="wrap" mb={2}>
                     {symbols.map(x => (
-                      <Box width={1 / 2} pr={2} mb={2} key={x.symbol}>
+                      <Box width={1 / 2} mb={2} key={x.symbol}>
                         <Field
                           component={Checkbox}
-                          label={x.symbol}
+                          Label={{ label: x.symbol }}
                           id={x.symbol}
                           name={`instruments.${x.symbol}`}
                         />
@@ -58,11 +59,16 @@ class SelectInstrumentsForm extends React.Component {
               ))}
             </Flex>
 
+            {errors && errors.instruments && (
+              <FormLabel error>{errors.instruments}</FormLabel>
+            )}
+
             <Flex>
               <div style={{ marginLeft: "auto" }}>
                 <Button
                   disabled={isSubmitting || !isValid}
-                  color="green"
+                  color="primary"
+                  variant="contained"
                   type="submit"
                 >
                   Save

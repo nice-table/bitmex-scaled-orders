@@ -2,9 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Flex, Box } from "@rebass/grid";
 import { Formik, Form, Field } from "formik";
-import { Toggle, Checkbox } from "form/Toggle";
+import { Toggle } from "form/Toggle";
 import { TextInput } from "form/TextInput";
-import { Button } from "semantic-ui-react";
+import Button from "@material-ui/core/Button";
 import * as Yup from "yup";
 import { ApiContextConsumer } from "./ApiKeyProvider";
 
@@ -97,11 +97,11 @@ class ApiKeyForm extends React.Component {
               </Flex>
             )}
 
-            <Field name="showKeysText" component={Checkbox} label="Show keys" />
+            <Field name="showKeysText" component={Toggle} label="Show keys" />
 
             <Flex>
               <div style={{ marginLeft: "auto" }}>
-                <Button color="green" type="submit">
+                <Button color="primary" variant="contained" type="submit">
                   Save
                 </Button>
               </div>
@@ -123,7 +123,8 @@ const ApiKeyFormWrapper = props => (
           productionApiKeyID: data.productionApiKeyID || "",
           productionApiKeySecret: data.productionApiKeySecret || "",
           testnetApiKeyID: data.testnetApiKeyID || "",
-          testnetApiKeySecret: data.testnetApiKeySecret || ""
+          testnetApiKeySecret: data.testnetApiKeySecret || "",
+          showKeysText: false
         }}
         onSubmit={values => {
           data.setApiKeys(values);

@@ -5,7 +5,7 @@ export const PlainButton = styled.button`
   border: 0;
   outline: 0;
   background: 0;
-  color: inherit;
+  color: ${props => props.theme.palette.primary.contrastText};
   cursor: pointer;
   ${space};
 `;

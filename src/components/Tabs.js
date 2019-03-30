@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { space } from "styled-system";
 
 export const Tab = styled.li`
-  background: rgba(0, 0, 0, 0.05);
-  color: #333;
+  background-color: ${props => props.theme.palette.primary.main};
+  color: ${props => props.theme.palette.primary.contrastText};
   padding: 10px;
   border-top: 3px solid transparent;
   transition: background 350ms;
@@ -13,8 +13,8 @@ export const Tab = styled.li`
     props.active &&
     `
     border-top: 3px solid rgb(234, 102, 104);
-    background: #333;
-    color: #fff;
+    background-color: ${props => props.theme.palette.secondary.light};
+    color: ${props => props.theme.palette.secondary.contrastText};
   `};
 `;
 

@@ -1,43 +1,6 @@
 import React from "react";
-import { FieldError } from "./index";
-import { Input, TextArea } from "semantic-ui-react";
+import { TextField } from "formik-material-ui";
 
-const TextInput = ({
-  className,
-  field,
-  form: { setFieldTouched, touched, errors },
-  type,
-  label,
-  multiLine,
-  ...props
-}) => (
-  <div className={className}>
-    <label>
-      {!multiLine && (
-        <Input
-          fluid
-          label={label}
-          type={type}
-          {...field}
-          {...props}
-          onBlur={arg => {
-            setFieldTouched(field.name, true);
-            field.onBlur(arg.currentTarget.value);
-          }}
-        />
-      )}
-
-      {multiLine && <TextArea {...field} {...props} />}
-
-      {touched[field.name] &&
-        errors[field.name] && <FieldError>{errors[field.name]}</FieldError>}
-    </label>
-  </div>
+export const TextInput = props => (
+  <TextField fullWidth variant="outlined" {...props} />
 );
-
-TextInput.defaultProps = {
-  type: "text",
-  multiLine: false
-};
-
-export { TextInput };

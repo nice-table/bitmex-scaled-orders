@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { pure } from "recompose";
 import { Tabs, Tab } from "components/Tabs";
 import { PlainButton } from "components/Buttons";
-import { Icon } from "semantic-ui-react";
+import AddIcon from "@material-ui/icons/Add";
 import LastPrice from "./LastPrice";
 
 const PriceLabel = styled.div`
@@ -14,11 +14,6 @@ const PriceLabel = styled.div`
 const EditTab = styled(Tab)`
   background: none;
   display: flex;
-  border: 1px dashed rgba(0, 0, 0, 0.2);
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
 `;
 
 export const InstrumentTabs = pure(
@@ -59,7 +54,7 @@ export const InstrumentTabs = pure(
           aria-label="Change active instruments"
           title="Change active instruments"
         >
-          <Icon style={{ margin: 0 }} name="add" size="large" />
+          <AddIcon />
         </PlainButton>
       </EditTab>
     </Tabs>

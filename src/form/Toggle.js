@@ -1,37 +1,9 @@
 import React from "react";
-import { FieldError } from "./index";
-import { Radio, Checkbox as SemanticCheckbox } from "semantic-ui-react";
+import { Switch, CheckboxWithLabel } from "formik-material-ui";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-const ToggleFactory = (ToggleComponent, factoryProps) => ({
-  field: { name, value, onChange, onBlur },
-  id,
-  form,
-  label,
-  className,
-  ...props
-}) => {
-  return (
-    <div>
-      <ToggleComponent
-        {...factoryProps}
-        name={name}
-        id={id}
-        checked={value}
-        onChange={event => {
-          form.setFieldValue(name, !value);
-        }}
-        onBlur={onBlur}
-        label={label}
-        {...props}
-      />
-      {form.touched[name] &&
-        form.errors[name] && <FieldError>{form.errors[name]}</FieldError>}
-    </div>
-  );
-};
+export const Toggle = ({ label, ...props }) => (
+  <FormControlLabel label={label} control={<Switch {...props} />} />
+);
 
-export const Toggle = ToggleFactory(Radio, { toggle: true });
-Toggle.displayName = "FormikToggle";
-
-export const Checkbox = ToggleFactory(SemanticCheckbox);
-Checkbox.displayName = "FormikCheckbox";
+export { CheckboxWithLabel as Checkbox };

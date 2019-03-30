@@ -1,43 +1,6 @@
-import React from "react";
-import { Header, Radio } from "semantic-ui-react";
+import { RadioGroup } from "formik-material-ui";
+import { Radio } from "@material-ui/core";
 
-export const RadioButton = ({
-  field: { name, value, onChange, onBlur },
-  id,
-  label,
-  className,
-  ...props
-}) => {
-  return (
-    <div>
-      <Radio
-        name={name}
-        id={id}
-        type="radio"
-        value={id}
-        checked={id === value}
-        onChange={onChange}
-        onBlur={onBlur}
-        label={label}
-        {...props}
-      />
-    </div>
-  );
-};
+export { Radio as RadioButton };
 
-export const RadioButtonGroup = ({
-  value,
-  error,
-  touched,
-  id,
-  label,
-  className,
-  children
-}) => {
-  return (
-    <div className={className}>
-      <Header as="h4">{label}</Header>
-      {children}
-    </div>
-  );
-};
+export { RadioGroup as RadioButtonGroup };

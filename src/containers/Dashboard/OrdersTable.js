@@ -2,8 +2,9 @@ import React from "react";
 import ReactTable from "components/ReactTable";
 import numeral from "numeral";
 import { pure } from "recompose";
-import { Button, Icon } from "semantic-ui-react";
+import Button from "@material-ui/core/Button";
 import { FormatPrice } from "modules/ui";
+import RemoveCircle from "@material-ui/icons/RemoveCircle";
 
 const canCancel = order =>
   order.ordStatus !== "Canceled" && order.ordStatus !== "Filled";
@@ -136,7 +137,7 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
         sortable: false,
         style: { textAlign: "center" },
         headerStyle: { textAlign: "center" },
-        maxWidth: 80,
+        width: 120,
         Header: ({ data }) =>
           data.length > 0 && (
             <Button
@@ -149,19 +150,20 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
                   }
                 })
               }
-              size="mini"
+              variant="outlined"
+              color="secondary"
               aria-label="Cancel all orders"
               title="Cancel all orders"
               disabled={cancelOrder.fetching}
-              negative
             >
-              <Icon name="cancel" />
+              <RemoveCircle />
             </Button>
           ),
         Cell: ({ original }) =>
           canCancel(original) && (
             <Button
-              size="mini"
+              variant="outlined"
+              color="secondary"
               disabled={cancelOrder.fetching}
               onClick={() =>
                 cancelOrder.doFetch({
@@ -170,7 +172,6 @@ export const OrdersTable = pure(({ cancelOrder, orders }) => (
                   }
                 })
               }
-              negative
             >
               Cancel
             </Button>

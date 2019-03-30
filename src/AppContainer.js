@@ -1,29 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useApiContext, useApi, ApiKeyForm } from "modules/api";
 import { UISettingsProvider } from "modules/ui";
 import { DataProvider } from "modules/data";
-import { Header, Modal } from "semantic-ui-react";
+import { Header } from "components/Header";
+import { Dialog } from "components/Dialog";
 import { Helmet } from "react-helmet";
 import Dashboard from "containers/Dashboard";
-import { Loader } from "semantic-ui-react";
-import { Icon } from "semantic-ui-react";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { toast } from "react-toastify";
+import SettingsIcon from "@material-ui/icons/Settings";
+import { useThemeContext } from "./Theme";
+import ColorsIcon from "@material-ui/icons/InvertColors";
 
 const Container = styled.div`
   padding: 20px;
 `;
 
-const SettingsModalToggler = styled.button`
-  position: absolute;
-  top: 20px;
-  right: 20px;
+const AppSettingButton = styled.button`
   background: none;
   border: 0;
   cursor: pointer;
+  color: ${props => props.theme.palette.text.primary};
+`;
+
+const AppSettingsContainer = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
 `;
 
 export function AppContainer() {
+  const { toggleDarkLightTheme } = useThemeContext();
+
   const apiContext = useApiContext();
   const instruments = useApi({
     url: "instrument/active",
@@ -45,18 +54,34 @@ export function AppContainer() {
         toast.error(`Invalid API key: doesn't have 'order' permission`);
       }
     },
-    onError: response => {
-      toast.error(`Invalid API key: ${response.statusText}`);
+    onError: error => {
+      toast.error(`${error.message}. Try restarting the application`);
       apiContext.setKeysValid(false);
     }
   });
 
   if (instruments.fetching || apiKeys.fetching) {
-    return <Loader active>Loading...</Loader>;
+    return (
+      <div
+        style={{
+          position: "absolute",
+          width: "100px",
+          left: "50%",
+          top: "50%",
+          marginLeft: "0px"
+        }}
+      >
+        <CircularProgress color="secondary" /> Loading...
+      </div>
+    );
   }
 
   if (!apiContext.hasApiKeys() || !apiContext.isValid) {
-    return <RenderApiKeyForm onKeySubmit={apiKeys.doFetch} />;
+    return (
+      <Container>
+        <RenderApiKeyForm onKeySubmit={apiKeys.doFetch} />
+      </Container>
+    );
   }
 
   if (instruments.data) {
@@ -80,7 +105,10 @@ export function AppContainer() {
             </Container>
           </DataProvider>
 
-          <Settings onKeySubmit={apiKeys.doFetch} />
+          <Settings
+            toggleDarkLightTheme={toggleDarkLightTheme}
+            onKeySubmit={apiKeys.doFetch}
+          />
         </React.Fragment>
       </UISettingsProvider>
     );
@@ -89,43 +117,38 @@ export function AppContainer() {
   return null;
 }
 
-function Settings({ onKeySubmit }) {
-  const [isSettingsModalOpen, onSetOpen] = useState(false);
-
+function Settings({ onKeySubmit, toggleDarkLightTheme }) {
   return (
-    <div>
-      <SettingsModalToggler
-        aria-label="Open settings"
-        title="Open settings"
-        onClick={() => onSetOpen(true)}
+    <AppSettingsContainer>
+      <AppSettingButton
+        title="Toggle light/dark theme"
+        onClick={toggleDarkLightTheme}
       >
-        <Icon name="setting" size="big" />
-      </SettingsModalToggler>
+        <ColorsIcon />
+      </AppSettingButton>
 
-      {isSettingsModalOpen && (
-        <Modal
-          onOpen={() => onSetOpen(true)}
-          open={isSettingsModalOpen}
-          onClose={() => onSetOpen(false)}
-          size="small"
-        >
-          <Modal.Content>
-            <Header as="h2">Settings</Header>
-            <ApiKeyForm
-              onKeySubmit={onKeySubmit}
-              afterSubmit={() => onSetOpen(false)}
-            />
-          </Modal.Content>
-        </Modal>
-      )}
-    </div>
+      <Dialog
+        title="Settings"
+        content={({ closeModal }) => (
+          <ApiKeyForm onKeySubmit={onKeySubmit} afterSubmit={closeModal} />
+        )}
+      >
+        {({ openModal }) => (
+          <AppSettingButton title="Open settings" onClick={openModal}>
+            <SettingsIcon />
+          </AppSettingButton>
+        )}
+      </Dialog>
+    </AppSettingsContainer>
   );
 }
 
 function RenderApiKeyForm({ onKeySubmit }) {
   return (
     <div style={{ maxWidth: "450px", margin: "20px auto" }}>
-      <Header as="h2">Login</Header>
+      <Header as="h2" variant="h4">
+        Login
+      </Header>
       <p>
         Logon Bitmex and create an API key with order permissions{" "}
         <a
