@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { space } from "styled-system";
+import { PlainButton } from "components/Buttons";
 
 export const Tab = styled.li`
   background-color: ${props => props.theme.palette.primary.main};
@@ -8,6 +9,10 @@ export const Tab = styled.li`
   border-top: 3px solid transparent;
   transition: background 350ms;
   ${space};
+
+  ${PlainButton} {
+    color: ${props => props.theme.palette.primary.contrastText};
+  }
 
   ${props =>
     props.active &&

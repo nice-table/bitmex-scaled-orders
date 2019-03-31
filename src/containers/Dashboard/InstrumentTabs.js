@@ -14,6 +14,10 @@ const PriceLabel = styled.div`
 const EditTab = styled(Tab)`
   background: none;
   display: flex;
+
+  ${PlainButton} {
+    color: ${props => props.theme.palette.text.primary};
+  }
 `;
 
 export const InstrumentTabs = pure(
